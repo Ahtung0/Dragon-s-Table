@@ -44,13 +44,27 @@
             </header>
             
             <nav class="main-nav">
-                <button class="nav-btn active" onclick="openMenuTab('rooms')">🏰 Кімнати</button>
-                <button class="nav-btn" onclick="openMenuTab('profile')">👤 Профіль</button>
+                <button class="nav-btn active" onclick="openMenuTab('profile')">👤 Профіль</button>
+                <button class="nav-btn" onclick="openMenuTab('rooms')">🏰 Кімнати</button>
             </nav>
 
             <hr class="gold-line">
 
-            <div id="tab-rooms" class="menu-tab-content">
+            <div id="tab-profile" class="menu-tab-content">
+                <div class="profile-container">
+                    <div class="avatar-placeholder">?</div>
+                    <h3>Налаштування персонажа</h3>
+                    <p style="color:#888; font-size:0.9em;">Тут скоро з'явиться редактор зовнішності.</p>
+                    
+                    <div class="stats-preview">
+                        <div class="stat-box">STR: 10</div>
+                        <div class="stat-box">DEX: 10</div>
+                        <div class="stat-box">INT: 10</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-rooms" class="menu-tab-content hidden">
                 <div class="actions">
                     <div class="action-block">
                         <h3>Нова пригода</h3>
@@ -121,5 +135,6 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
