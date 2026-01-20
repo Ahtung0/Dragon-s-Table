@@ -252,3 +252,10 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     animation: shine 3s infinite;
     pointer-events: none;
 }
+
+/* --- Відступи для кнопки підтвердження (Вхід та Реєстрація) --- */
+#submitAuthBtn {
+    margin-top: 30px;    /* Однаковий відступ зверху для обох режимів */
+    margin-bottom: 20px; /* Відступ знизу */
+    width: 100%;         /* На всю ширину */
+}
