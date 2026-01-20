@@ -191,6 +191,136 @@ function openMenuTab(tabName) {
     if(tabName === 'rooms') buttons[1].classList.add('active');
 }
 
+// --- ФУНКЦІЇ МАЙСТРА ---
+
+async function kickPlayer(targetId, targetName) {
+    if(!confirm(`Вигнати гравця ${targetName}?`)) return;
+    
+    await apiCall('kick_player', {
+        roomCode: user.room,
+        userId: user.id,
+        targetId: targetId
+    });
+    // refreshState оновить список автоматично
+}
+
+async function deleteRoom() {
+    const code = prompt("Для видалення введіть код кімнати:");
+    if(code !== user.room) return alert("Код невірний. Скасування.");
+
+    toggleLoader(true);
+    await apiCall('delete_room', { roomCode: user.room, userId: user.id });
+    toggleLoader(false);
+    
+    leaveRoom(); // Виходимо самі
+}
+
+async function sendGmLog() {
+    const input = document.getElementById('gmLogInput');
+    const text = input.value.trim();
+    if(!text) return;
+
+    await apiCall('add_log', {
+        roomCode: user.room,
+        userId: user.id,
+        text: text
+    });
+    input.value = ''; // Очистити поле
+    refreshState();
+}
+
+// --- ОНОВЛЕНА ФУНКЦІЯ refreshState ---
+
+async function refreshState() {
+    if(!user.room) return;
+    try {
+        const res = await fetch(`${SCRIPT_URL}?action=get_state&roomCode=${user.room}`);
+        const data = await res.json();
+        
+        // 1. Перевірка: чи кімната ще існує?
+        if(data.status === 'deleted') {
+            alert('Майстер розпустив цю кімнату.');
+            leaveRoom();
+            return;
+        }
+        
+        if(data.status === 'success') {
+            // Перевіряємо, чи нас не вигнали (чи є ми в списку?)
+            const amIHere = data.players.find(p => p.id === user.id);
+            if(!amIHere) {
+                alert('Вас було вигнано з кімнати.');
+                leaveRoom();
+                return;
+            }
+
+            // Оновлюємо роль
+            user.role = amIHere.role;
+            document.getElementById('roleDisplay').innerText = user.role === 'GM' ? '👑 GM' : '👤 Гравець';
+            
+            // Показуємо/Ховаємо панель GM
+            if(user.role === 'GM') {
+                document.getElementById('gm-controls').classList.remove('hidden');
+            } else {
+                document.getElementById('gm-controls').classList.add('hidden');
+            }
+
+            // Малюємо гравців
+            renderPlayers(data.players);
+            
+            // Малюємо лог
+            renderLogs(data.logs);
+        }
+    } catch(e) {}
+}
+
+// --- ОНОВЛЕНА ФУНКЦІЯ renderPlayers (З кнопкою Kick) ---
+function renderPlayers(players) {
+    const list = document.getElementById('playersList');
+    list.innerHTML = players.map(p => {
+        const isGM = p.role === 'GM';
+        const isMe = p.id === user.id;
+        
+        let actions = '';
+        
+        // Якщо Я - GM, і це не я -> малюємо кнопку Kick
+        if(user.role === 'GM' && !isMe) {
+            actions = `
+                <div style="display:flex; gap:5px;">
+                    <button class="btn-kick" onclick="kickPlayer('${p.id}', '${p.name}')" title="Вигнати">❌</button>
+                    ${!isGM ? `<button class="btn-transfer" onclick="transferGM('${p.id}')">👑</button>` : ''}
+                </div>
+            `;
+        }
+
+        return `
+            <li class="${isGM ? 'gm' : ''}">
+                <span>${isGM ? '👑' : '👤'} <b>${p.name}</b> ${isMe ? '(Ви)' : ''}</span>
+                ${actions}
+            </li>
+        `;
+    }).join('');
+}
+
+// --- НОВА ФУНКЦІЯ renderLogs ---
+function renderLogs(logs) {
+    const container = document.getElementById('gameLog');
+    if(!logs || logs.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:#555; margin-top:20px;">Історія ще не написана...</div>';
+        return;
+    }
+
+    // Перетворюємо масив логів в HTML
+    // reverse() щоб нові були зверху (опціонально)
+    const html = logs.map(l => `
+        <div class="log-entry">
+            <span class="log-time">[${l.time}]</span>
+            <span class="log-text">${l.text}</span>
+        </div>
+    `).reverse().join('');
+    
+    container.innerHTML = html;
+}
+
 // --- ОНОВЛЕНА ФУНКЦІЯ: showDashboard ---
 function showDashboard() {
     document.getElementById('auth-screen').classList.add('hidden');
