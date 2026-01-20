@@ -25,44 +25,83 @@ window.onload = function() {
 
 // --- АВТОРИЗАЦІЯ ---
 
-async function doLogin() {
-    const name = document.getElementById('authName').value.trim();
-    const pass = document.getElementById('authPass').value.trim();
-    if(!name || !pass) return showError('Введіть логін і пароль');
+// --- Змінна для збереження поточного режиму ---
+let currentAuthMode = 'login'; // 'login' або 'register'
 
-    toggleLoader(true);
-    const data = await apiCall('login', { username: name, password: pass });
-    toggleLoader(false);
+// --- ФУНКЦІЯ: Перемикання режиму (Вхід / Реєстрація) ---
+function switchAuthMode(mode) {
+    currentAuthMode = mode;
+    
+    // Очищаємо поля та помилки
+    document.getElementById('error-msg').innerText = '';
+    document.getElementById('authPass').value = '';
+    document.getElementById('authPassConfirm').value = '';
 
-    if (data.status === 'success') {
-        saveUser(data.userId, data.username);
-        
-        // Якщо сервер повернув останню кімнату, можна запропонувати відновити гру
-        if(data.lastRoom) {
-            document.getElementById('roomCodeInput').value = data.lastRoom;
-        }
-        showDashboard();
+    // Оновлюємо кнопки вкладок
+    document.getElementById('btn-tab-login').classList.toggle('active', mode === 'login');
+    document.getElementById('btn-tab-register').classList.toggle('active', mode === 'register');
+
+    // Показуємо/ховаємо поле підтвердження пароля
+    const confirmGroup = document.getElementById('group-pass-confirm');
+    const submitBtn = document.getElementById('submitAuthBtn');
+
+    if (mode === 'register') {
+        confirmGroup.classList.remove('hidden');
+        submitBtn.innerText = "Зареєструватися";
+        submitBtn.classList.remove('btn-primary');
+        submitBtn.classList.add('btn-crimson'); // Червона кнопка для реєстрації (для стилю)
     } else {
-        showError(data.message);
+        confirmGroup.classList.add('hidden');
+        submitBtn.innerText = "Увійти";
+        submitBtn.classList.add('btn-primary');
+        submitBtn.classList.remove('btn-crimson');
     }
 }
 
-async function doRegister() {
+// --- ФУНКЦІЯ: Відправка форми ---
+async function submitAuth() {
     const name = document.getElementById('authName').value.trim();
     const pass = document.getElementById('authPass').value.trim();
-    if(!name || !pass) return showError('Введіть дані для реєстрації');
+    
+    if(!name || !pass) return showError('Заповніть усі поля!');
 
-    toggleLoader(true);
-    const data = await apiCall('register', { username: name, password: pass });
-    toggleLoader(false);
+    // ЛОГІКА РЕЄСТРАЦІЇ
+    if (currentAuthMode === 'register') {
+        const passConfirm = document.getElementById('authPassConfirm').value.trim();
+        
+        if (pass !== passConfirm) {
+            return showError('Паролі не співпадають!');
+        }
 
-    if (data.status === 'success') {
-        alert('Акаунт створено! Тепер увійдіть.');
-        // Можна одразу логінити, але для надійності хай введуть ще раз або просто:
-        saveUser(data.userId, data.username);
-        showDashboard();
-    } else {
-        showError(data.message);
+        toggleLoader(true);
+        // Викликаємо API реєстрації
+        const data = await apiCall('register', { username: name, password: pass });
+        toggleLoader(false);
+
+        if (data.status === 'success') {
+            alert('Акаунт успішно створено! Входимо...');
+            saveUser(data.userId, data.username);
+            showDashboard();
+        } else {
+            showError(data.message);
+        }
+    } 
+    // ЛОГІКА ВХОДУ
+    else {
+        toggleLoader(true);
+        // Викликаємо API входу
+        const data = await apiCall('login', { username: name, password: pass });
+        toggleLoader(false);
+
+        if (data.status === 'success') {
+            saveUser(data.userId, data.username);
+            if(data.lastRoom) {
+                document.getElementById('roomCodeInput').value = data.lastRoom;
+            }
+            showDashboard();
+        } else {
+            showError(data.message);
+        }
     }
 }
 
