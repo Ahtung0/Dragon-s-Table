@@ -1,5 +1,5 @@
 // ⚠️ Ваш Proxy URL
-const SCRIPT_URL = '/.netlify/functions/proxy'; 
+const SCRIPT_URL = 'https://dragonstable.erykalovnikita305.workers.dev'; 
 
 let user = {
     id: null,
