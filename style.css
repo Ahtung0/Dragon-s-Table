@@ -320,6 +320,41 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     margin-bottom: 20px; /* Змініть це число, якщо хочете ще більше місця */
 }
 
+/* Кнопка Вигнати */
+.btn-kick {
+    background: transparent;
+    border: 1px solid #555;
+    color: #ff5555;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+.btn-kick:hover { background: #4a0f0f; border-color: red; }
+
+/* Кнопка видалення кімнати */
+.btn-danger-zone {
+    width: 100%;
+    background: #2a0000;
+    color: #ff3333;
+    border: 1px dashed #ff3333;
+    padding: 10px;
+    cursor: pointer;
+    font-family: var(--font-head);
+    transition: 0.3s;
+}
+.btn-danger-zone:hover { background: #ff0000; color: white; }
+
+/* Стилі Літопису */
+.log-entry {
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-left: 2px solid var(--gold);
+}
+.log-time { color: #666; font-size: 0.75em; margin-right: 5px; }
+.log-text { color: #ddd; font-family: var(--font-body); }
+
 /* Стилі для вкладки Кімнат */
 .join-row { display: flex; gap: 5px; }
 .desc { font-size: 0.8em; color: #666; margin-top: -10px; margin-bottom: 10px; }
