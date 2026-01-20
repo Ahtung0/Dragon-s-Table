@@ -160,14 +160,41 @@ function saveUser(id, name) {
     localStorage.setItem('rpg_name', name);
 }
 
+// --- НОВА ФУНКЦІЯ: Перемикання вкладок меню ---
+function openMenuTab(tabName) {
+    // 1. Ховаємо всі вкладки
+    document.getElementById('tab-rooms').classList.add('hidden');
+    document.getElementById('tab-profile').classList.add('hidden');
+    
+    // 2. Показуємо потрібну
+    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+    // 3. Оновлюємо кнопки (активний стан)
+    const buttons = document.querySelectorAll('.nav-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    // Знаходимо кнопку, яку натиснули (простий спосіб за текстом або порядком)
+    // Або просто передаємо `this` у функцію, але тут зробимо простіше:
+    if(tabName === 'rooms') buttons[0].classList.add('active');
+    if(tabName === 'profile') buttons[1].classList.add('active');
+}
+
 function showDashboard() {
+    // Ховаємо екран авторизації та гри
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('game-screen').classList.add('hidden');
-    document.getElementById('dashboard-screen').classList.remove('hidden');
-    document.getElementById('dashboard-screen').classList.add('fade-in');
     
+    // Показуємо Головне Меню
+    const menuScreen = document.getElementById('main-menu-screen');
+    menuScreen.classList.remove('hidden');
+    menuScreen.classList.add('fade-in');
+    
+    // Заповнюємо дані
     document.getElementById('dash-username').innerText = user.name;
     showError('');
+
+    // За замовчуванням відкриваємо вкладку кімнат
+    openMenuTab('rooms');
 }
 
 async function apiCall(action, params = {}) {
