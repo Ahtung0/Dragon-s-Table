@@ -76,21 +76,18 @@
             </div>
 
             <div id="tab-rooms" class="menu-tab-content hidden">
-                <div class="actions">
-                    <div class="action-block">
-                        <h3>Нова пригода</h3>
-                        <p class="desc">Створити світ для друзів</p>
-                        <button class="btn btn-crimson" onclick="createRoom()">Створити</button>
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3>Нова пригода</h3>
+                    <p class="desc">Створити світ для друзів</p> 
+                    <button class="btn btn-primary" onclick="createRoom()">Створити</button>
+                </div>
+                <div class="card">
+                    <h3>Приєднатися</h3>
+                    <p class="desc">Введіть код кімнати</p>
+                    <div class="join-row">
+                        <input type="text" id="roomCodeInput" placeholder="CODE" maxlength="4" style="text-transform:uppercase; text-align:center; letter-spacing: 3px;">
                     </div>
-                    
-                    <div class="action-block">
-                        <h3>Приєднатися</h3>
-                        <p class="desc">Введіть код кімнати</p>
-                        <div class="join-row">
-                            <input type="text" id="roomCodeInput" placeholder="CODE" maxlength="6">
-                            <button class="btn btn-primary" onclick="joinRoom()">➜</button>
-                        </div>
-                    </div>
+                    <button id="btn-join" class="btn btn-secondary" onclick="joinRoom()">Приєднатися</button>
                 </div>
             </div>
 
@@ -160,6 +157,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
