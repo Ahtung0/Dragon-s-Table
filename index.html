@@ -36,10 +36,13 @@
 
         <section id="main-menu-screen" class="card hidden">
             <header class="menu-header">
-                <h2 class="welcome-text">Вітаю, <span id="dash-username" style="color:var(--gold)"></span></h2>
-                <button onclick="logout()" class="btn-logout" title="Вийти з акаунту">🚪</button>
+                <div class="user-welcome">
+                    <span class="welcome-label">Вітаю,</span>
+                    <span id="dash-username" class="username-gold"></span>
+                </div>
+                <button onclick="logout()" class="btn-text-logout">Вийти з акаунту ➜</button>
             </header>
-
+            
             <nav class="main-nav">
                 <button class="nav-btn active" onclick="openMenuTab('rooms')">🏰 Кімнати</button>
                 <button class="nav-btn" onclick="openMenuTab('profile')">👤 Профіль</button>
@@ -84,12 +87,17 @@
 
         <section id="game-screen" class="card hidden">
             <header class="room-header">
-                <div class="room-info">
-                    <span class="label">Кімната:</span>
-                    <span id="displayRoomCode" class="code-value">---</span>
+                <div class="room-meta">
+                    <div class="room-info">
+                        <span class="label">Кімната:</span>
+                        <span id="displayRoomCode" class="code-value">---</span>
+                    </div>
+                    <div class="role-info" id="roleDisplay"></div>
                 </div>
-                <div class="role-info" id="roleDisplay"></div>
-                <button onclick="leaveRoom()" style="font-size:0.8em; background:#333; color:#fff; border:none; padding:5px 10px; cursor:pointer;">Меню</button>
+                
+                <button onclick="leaveRoom()" class="btn-leave">
+                    <span>Вийти в меню</span>
+                </button>
             </header>
 
             <div class="content-grid">
@@ -113,4 +121,5 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
