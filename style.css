@@ -102,6 +102,139 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
 }
 .btn-secondary:hover { background: #444; color: #fff; }
 
+/* Червона кнопка (для реєстрації) */
+.btn-crimson {
+    background: linear-gradient(135deg, #a02020 0%, #600000 100%);
+    color: #fff;
+    border: 1px solid #ff4444;
+}
+.btn-crimson:hover {
+    box-shadow: 0 0 15px rgba(255, 50, 50, 0.4);
+    transform: scale(1.02);
+}
+
+/* --- Вкладки авторизації (Вхід / Реєстрація) --- */
+.auth-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    background: #111;
+    padding: 5px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.auth-tabs .tab-btn {
+    flex: 1;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 12px;
+    color: #888;
+    font-family: var(--font-head);
+    font-size: 1.1em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-tabs .tab-btn:not(.active):hover {
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #444;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+.auth-tabs .tab-btn.active {
+    background: linear-gradient(135deg, var(--gold) 0%, #a67c00 100%);
+    color: #1a1a1a;
+    border-color: var(--gold-dim);
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 5px rgba(0,0,0,0.2);
+}
+
+.auth-tabs .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(to bottom right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+    pointer-events: none;
+}
+
+/* --- Фіксований відступ для головної кнопки авторизації --- */
+#submitAuthBtn {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    width: 100%;
+    display: block;
+}
+
+/* --- Навігація меню (Профіль / Кімнати) --- */
+.main-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #111;
+    padding: 5px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.nav-btn {
+    flex: 1;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 12px;
+    color: #888;
+    font-family: var(--font-head);
+    font-size: 1.1em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-btn:hover { 
+    color: #ccc; 
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #444;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+.nav-btn.active {
+    background: linear-gradient(135deg, var(--gold) 0%, #a67c00 100%);
+    color: #1a1a1a;
+    border-color: var(--gold-dim);
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 5px rgba(0,0,0,0.2);
+    top: 0; 
+}
+
+.nav-btn.active::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(to bottom right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+    pointer-events: none;
+}
+
+/* --- Інші елементи інтерфейсу --- */
 .divider {
     text-align: center;
     margin: 20px 0;
@@ -113,12 +246,11 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     border-top: 1px solid #333; z-index: 0;
 }
 
-/* --- Ігрова зона --- */
 .room-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #333;
+    border-bottom: 2px solid #222;
     padding-bottom: 15px;
     margin-bottom: 20px;
 }
@@ -148,7 +280,6 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
 }
 .btn-transfer:hover { border-color: var(--crimson); color: var(--crimson); }
 
-/* --- Лог --- */
 .log-content {
     background: #111;
     height: 300px;
@@ -158,8 +289,17 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     font-size: 0.9em;
     color: #bbb;
 }
+.log-entry {
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-left: 2px solid var(--gold);
+}
+.log-time { color: #666; font-size: 0.75em; margin-right: 5px; }
+.log-text { color: #ddd; font-family: var(--font-body); }
 
-/* --- Loader Animation --- */
+/* --- Лоадер --- */
 .loader-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.85); z-index: 100;
@@ -174,97 +314,69 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     animation: spin 1s linear infinite;
     margin-bottom: 15px;
 }
+@keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* --- Головне Меню --- */
+/* --- Елементи меню --- */
 .menu-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
     margin-bottom: 20px;
 }
-
-.btn-logout {
-    background: none; border: 1px solid #444; 
-    border-radius: 50%; width: 30px; height: 30px; 
-    cursor: pointer; transition: 0.3s;
-}
-.btn-logout:hover { border-color: var(--crimson); background: #300; }
-
-/* --- Навігація меню (ОНОВЛЕНА В СТИЛІ ФЕНТЕЗІ) --- */
-.main-nav {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    /* Додаємо темну підкладку, як у вікні входу */
-    background: #111;
-    padding: 5px;
-    border-radius: 8px;
-    border: 1px solid #333;
+.username-gold {
+    color: var(--gold);
+    font-weight: bold;
+    font-size: 1.2em;
+    text-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
 }
 
-.nav-btn {
-    flex: 1;
+.btn-text-logout, .btn-leave {
     background: transparent;
-    border: 1px solid transparent;
-    padding: 12px;
+    border: 1px solid #444;
     color: #888;
-    font-family: var(--font-head);
-    font-size: 1.1em;
+    padding: 8px 15px;
+    font-family: var(--font-body);
+    font-size: 0.85em;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
+}
+.btn-text-logout:hover, .btn-leave:hover {
+    border-color: var(--crimson);
+    color: var(--crimson);
+    background: rgba(138, 28, 28, 0.1);
 }
 
-/* Ефект при наведенні (світіння рамки) */
-.nav-btn:hover { 
-    color: #ccc; 
-    background: rgba(255, 255, 255, 0.05);
-    border-color: #444;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
-}
-
-/* Активна вкладка (Золота заливка з блиском) */
-.nav-btn.active {
-    background: linear-gradient(135deg, var(--gold) 0%, #a67c00 100%);
-    color: #1a1a1a;
-    border-color: var(--gold-dim);
-    font-weight: bold;
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 5px rgba(0,0,0,0.2);
-    /* Скидаємо старі стилі, які робили кнопку схожою на папку */
-    border-bottom-color: var(--gold-dim); 
-    top: 0; 
-}
-
-/* Додаємо магічний блік (анімація) */
-.nav-btn.active::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(to bottom right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
-    transform: rotate(45deg);
-    animation: shine 3s infinite;
-    pointer-events: none;
-}    
-
-/* --- Фіксований відступ для головної кнопки (Вхід/Реєстрація) --- */
-#submitAuthBtn {
-    margin-top: 30px;    /* Цей відступ відштовхне кнопку вниз від полів */
-    margin-bottom: 20px;
-    width: 100%;
-    display: block;      /* Гарантує правильне позиціонування */
-}
-
-/* Стиль для тексту помилок (ви казали, що його не було) */
-.error-text {
+.btn-kick {
+    background: transparent;
+    border: 1px solid #555;
     color: #ff5555;
-    text-align: center;
-    margin-top: 10px;
-    font-size: 0.9em;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+.btn-kick:hover { background: #4a0f0f; border-color: red; }
+
+.btn-danger-zone {
+    width: 100%;
+    background: #2a0000;
+    color: #ff3333;
+    border: 1px dashed #ff3333;
+    padding: 10px;
+    cursor: pointer;
+    font-family: var(--font-head);
+    transition: 0.3s;
+}
+.btn-danger-zone:hover { background: #ff0000; color: white; }
+
+.error-text { color: #ff5555; text-align: center; margin-top: 10px; }
+
+/* Анімація блиску */
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    20%, 100% { transform: translateX(100%) rotate(45deg); }
 }
