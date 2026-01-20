@@ -278,30 +278,33 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     margin-bottom: 20px;
 }
 
+/* --- Кнопка "Вийти з кімнати" (Оновлений стиль) --- */
 .btn-leave {
-    background: #1a1a1a;
-    border: 1px solid #d32f2f; /* Червона рамка */
-    color: #e57373;
-    padding: 8px 16px;
-    font-family: var(--font-head);
-    font-size: 0.9em;
-    cursor: pointer;
+    background: transparent;          /* Прозорий фон, як у Logout */
+    border: 1px solid #444;           /* Тонка сіра рамка */
+    color: #888;                      /* Сірий текст */
+    padding: 8px 15px;
+    font-family: var(--font-body);
+    font-size: 0.85em;
     border-radius: 4px;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;        /* Великі літери */
+    letter-spacing: 1px;
+    display: inline-block;            /* Щоб поводилась як текст */
 }
 
 .btn-leave:hover {
-    background: #d32f2f;
-    color: white;
-    box-shadow: 0 0 10px rgba(211, 47, 47, 0.4);
-    transform: translateY(-1px);
+    border-color: var(--crimson);     /* Червона рамка при наведенні */
+    color: var(--crimson);            /* Червоний текст */
+    background: rgba(138, 28, 28, 0.1); /* Легке підсвічування фону */
+    box-shadow: none;                 /* Прибираємо старі тіні */
+    transform: none;                  /* Прибираємо старі зсуви */
 }
 
+/* Прибираємо старі стилі для натискання, якщо вони були */
 .btn-leave:active {
-    transform: translateY(1px);
+    transform: none;
 }
 
 /* Вирівнювання тексту в хедері кімнати */
@@ -309,6 +312,12 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     display: flex;
     flex-direction: column;
     gap: 5px;
+}
+
+/* Відступ між кнопками входу та реєстрації */
+#auth-screen .btn-primary {
+    margin-top: 30px;
+    margin-bottom: 20px; /* Змініть це число, якщо хочете ще більше місця */
 }
 
 /* Стилі для вкладки Кімнат */
