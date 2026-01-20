@@ -340,44 +340,54 @@ async function refreshState() {
 
 // --- ОНОВЛЕНА ФУНКЦІЯ renderPlayers (З кнопкою Kick) ---
 function renderPlayers(players) {
-    const list = document.getElementById('players-list');
-    list.innerHTML = '';
+    try {
+        const list = document.getElementById('players-list');
+        if (!list) return; // Якщо списку немає в HTML - виходимо, щоб не було помилки
 
-    // Перевіряємо, чи я є GM
-    const amIGM = players.some(p => p.id === user.id && p.role === 'GM');
+        list.innerHTML = '';
 
-    players.forEach(p => {
-        const li = document.createElement('li');
-        
-        // Додаємо клас, якщо гравець GM (щоб підсвітити золотим)
-        if (p.role === 'GM') li.classList.add('gm');
+        // ЗАХИСТ: Якщо user ще не завантажився, вважаємо що це не я
+        const myId = (typeof user !== 'undefined' && user) ? user.id : null;
 
-        // Основна інформація про гравця
-        const infoSpan = document.createElement('span');
-        // Якщо це GM - додаємо іконку корони перед іменем
-        const icon = p.role === 'GM' ? '<span class="crown-icon">👑</span>' : '';
-        // Додаємо мітку (Ви)
-        const isMe = p.id === user.id ? ' <small>(Ви)</small>' : '';
-        
-        infoSpan.innerHTML = `${icon} <strong>${p.name}</strong>${isMe}`;
-        li.appendChild(infoSpan);
+        // Перевіряємо, чи я є GM
+        const amIGM = players.some(p => p.id === myId && p.role === 'GM');
 
-        // --- МАЛЮЄМО КНОПКИ (Тільки якщо Я - GM і це НЕ мій рядок) ---
-        if (amIGM && p.id !== user.id) {
-            const actionsSpan = document.createElement('div');
-            actionsSpan.className = 'gm-actions'; // Можна додати стилі для цього класу
+        players.forEach(p => {
+            const li = document.createElement('li');
             
-            // Ось ці кнопки, яких не вистачало:
-            actionsSpan.innerHTML = `
-                <button class="btn-transfer" onclick="transferGM('${p.id}')" title="Передати корону">👑</button>
-                <button class="btn-kick" onclick="kickPlayer('${p.id}')" title="Вигнати">✕</button>
-            `;
-            
-            li.appendChild(actionsSpan);
-        }
+            // Додаємо клас GM
+            if (p.role === 'GM') li.classList.add('gm');
 
-        list.appendChild(li);
-    });
+            // Основна інформація
+            const infoSpan = document.createElement('span');
+            const icon = p.role === 'GM' ? '<span class="crown-icon">👑</span>' : '';
+            const isMe = p.id === myId ? ' <small>(Ви)</small>' : '';
+            
+            infoSpan.innerHTML = `${icon} <strong>${p.name}</strong>${isMe}`;
+            li.appendChild(infoSpan);
+
+            // --- МАЛЮЄМО КНОПКИ ---
+            // Показуємо кнопки ТІЛЬКИ якщо:
+            // 1. Я - GM
+            // 2. Цей рядок - НЕ я (не можна кікнути себе)
+            if (amIGM && p.id !== myId) {
+                const actionsSpan = document.createElement('div');
+                actionsSpan.style.display = 'flex'; // Щоб кнопки стояли в ряд
+                actionsSpan.style.gap = '5px';      // Відступ між кнопками
+                
+                actionsSpan.innerHTML = `
+                    <button class="btn-transfer" onclick="transferGM('${p.id}')" title="Передати корону">👑</button>
+                    <button class="btn-kick" onclick="kickPlayer('${p.id}')" title="Вигнати">✕</button>
+                `;
+                
+                li.appendChild(actionsSpan);
+            }
+
+            list.appendChild(li);
+        });
+    } catch (e) {
+        console.error("Помилка у renderPlayers:", e);
+    }
 }
 
 // --- НОВА ФУНКЦІЯ renderLogs ---
