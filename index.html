@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPG Portal</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Fauna+One&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="background-overlay"></div>
+
+    <main class="container">
+        <header class="game-header">
+            <h1>⚔️ Dragon's Table</h1>
+            <p>Віртуальний стіл для вашої пригоди</p>
+        </header>
+
+        <section id="login-screen" class="card fade-in">
+            <div class="input-group">
+                <label>Хто ти, мандрівнику?</label>
+                <input type="text" id="playerName" placeholder="Введіть ім'я персонажа..." autocomplete="off">
+            </div>
+
+            <div class="actions">
+                <div class="action-block">
+                    <h3>Почати нову історію</h3>
+                    <button class="btn btn-primary" onclick="createRoom()">Створити Кімнату</button>
+                </div>
+                
+                <div class="divider"><span>АБО</span></div>
+
+                <div class="action-block">
+                    <h3>Приєднатися до групи</h3>
+                    <input type="text" id="roomCodeInput" placeholder="Код кімнати">
+                    <button class="btn btn-secondary" onclick="joinRoom()">Увійти</button>
+                </div>
+            </div>
+            <p id="error-msg" class="error-text"></p>
+        </section>
+
+        <section id="game-screen" class="card hidden">
+            <header class="room-header">
+                <div class="room-info">
+                    <span class="label">Код кімнати:</span>
+                    <span id="displayRoomCode" class="code-value">---</span>
+                </div>
+                <div class="role-info" id="roleDisplay"></div>
+            </header>
+
+            <div class="content-grid">
+                <div class="panel players-panel">
+                    <h2>🛡️ Герої</h2>
+                    <ul id="playersList" class="player-list"></ul>
+                </div>
+
+                <div class="panel log-panel">
+                    <h2>📜 Літопис</h2>
+                    <div id="gameLog" class="log-content">
+                        <div class="log-entry system">Чекаємо на дії...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="loader" class="loader-overlay hidden">
+            <div class="spinner"></div>
+            <p>Закликання магії...</p>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
