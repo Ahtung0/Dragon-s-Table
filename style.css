@@ -382,6 +382,29 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     font-family: var(--font-head);
     transition: 0.3s;
 }
+
+/* --- Стилі для описів та відступів у меню Кімнат --- */
+
+/* Опис (сірий текст) */
+.desc {
+    color: #888;           /* Сірий колір */
+    font-size: 0.9em;      /* Трохи менший шрифт */
+    margin-top: -15px;     /* Піднімаємо текст ближче до заголовка (мінусовий відступ) */
+    margin-bottom: 20px;   /* Відступ знизу до кнопок/полів */
+    font-style: italic;    /* Курсив (за бажанням) */
+}
+
+/* Кнопка "Приєднатися" */
+#btn-join {
+    margin-top: 25px;      /* Опускаємо кнопку нижче від поля вводу */
+    width: 100%;           /* На всю ширину */
+}
+
+/* Вирівнювання заголовків у картках меню */
+#tab-rooms h3 {
+    margin-bottom: 20px;   /* Відступ заголовка від опису */
+}
+
 .btn-danger-zone:hover { background: #ff0000; color: white; }
 
 .error-text { color: #ff5555; text-align: center; margin-top: 10px; }
