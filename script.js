@@ -143,6 +143,35 @@ async function joinRoom() {
     }
 }
 
+async function transferGM(targetId) {
+    if (!confirm('Ви точно хочете передати права GM цьому гравцю? Ви втратите контроль над кімнатою.')) return;
+
+    toggleLoader(true);
+    
+    try {
+        // Відправляємо команду на сервер
+        const result = await apiCall('transfer_gm', {
+            roomCode: currentRoomCode,
+            userId: user.id,     // Я (поточний GM)
+            targetId: targetId   // Новий GM
+        });
+
+        if (result.status === 'success') {
+            alert('Корону успішно передано!');
+            // Одразу оновлюємо стан, щоб інтерфейс перемалювався
+            await refreshState(); 
+        } else {
+            showError(result.message || 'Помилка передачі прав');
+        }
+    } catch (e) {
+        console.error(e);
+        showError("Сталася помилка з'єднання");
+    } finally {
+        // Цей код виконається ЗАВЖДИ, тому спінер зникне
+        toggleLoader(false);
+    }
+}
+
 // --- ГРА ---
 
 function enterGame(roomCode, role) {
@@ -195,28 +224,6 @@ async function refreshState() {
             }).join('');
         }
     } catch(e) {}
-}
-
-async function transferGM(targetId) {
-    if (!confirm('Ви точно хочете передати права GM цьому гравцю? Ви втратите контроль над кімнатою.')) return;
-
-    toggleLoader(true);
-    
-    // Відправляємо команду на сервер
-    const result = await apiCall('transfer_gm', {
-        roomCode: currentRoomCode,
-        userId: user.id,     // Я (поточний GM)
-        targetId: targetId   // Новий GM
-    });
-
-    toggleLoader(false);
-
-    if (result.status === 'success') {
-        alert('Корону успішно передано!');
-        refreshState(); // Оновлюємо екран, щоб побачити зміни
-    } else {
-        showError(result.message || 'Помилка передачі прав');
-    }
 }
 
 // --- УТИЛІТИ ---
