@@ -23,6 +23,7 @@
                 <button id="btn-tab-login" class="tab-btn active" onclick="switchAuthMode('login')">Вхід</button>
                 <button id="btn-tab-register" class="tab-btn" onclick="switchAuthMode('register')">Реєстрація</button>
             </div>
+
             <div class="auth-form-content">
                 <div class="input-group">
                     <label>Логін</label>
@@ -59,18 +60,14 @@
                 <button class="nav-btn" onclick="openMenuTab('rooms')">🏰 Кімнати</button>
             </nav>
 
-            <hr class="gold-line">
-
             <div id="tab-profile" class="menu-tab-content">
                 <div class="profile-container">
-                    <div class="avatar-placeholder">?</div>
-                    <h3>Налаштування персонажа</h3>
-                    <p style="color:#888; font-size:0.9em;">Тут скоро з'явиться редактор зовнішності.</p>
+                    <div class="avatar-placeholder">👤</div>
+                    <h3>Ваш Персонаж</h3>
                     
                     <div class="stats-preview">
-                        <div class="stat-box">STR: 10</div>
-                        <div class="stat-box">DEX: 10</div>
-                        <div class="stat-box">INT: 10</div>
+                        <div class="stat-box">Рівень: 1</div>
+                        <div class="stat-box">Досвід: 0</div>
                     </div>
                 </div>
             </div>
@@ -88,23 +85,7 @@
                 <input type="text" id="roomCodeInput" placeholder="CODE" maxlength="4" style="text-transform:uppercase; text-align:center; letter-spacing: 3px;">
                 
                 <button id="btn-join" class="btn btn-secondary" onclick="joinRoom()">Приєднатися</button>
-
             </div>
-
-            <div id="tab-profile" class="menu-tab-content hidden">
-                <div class="profile-container">
-                    <div class="avatar-placeholder">?</div>
-                    <h3>Налаштування персонажа</h3>
-                    <p style="color:#888; font-size:0.9em;">Тут скоро з'явиться редактор зовнішності.</p>
-                    
-                    <div class="stats-preview">
-                        <div class="stat-box">STR: 10</div>
-                        <div class="stat-box">DEX: 10</div>
-                        <div class="stat-box">INT: 10</div>
-                    </div>
-                </div>
-            </div>
-
         </section>
 
         <section id="game-screen" class="card hidden">
@@ -123,11 +104,12 @@
             <div class="content-grid">
                 <div class="panel players-panel">
                     <h2>🛡️ Герої</h2>
-                    <ul id="playersList" class="player-list"></ul>
+                    <ul id="players-list" class="player-list"></ul>
                 </div>
+                
                 <div class="panel log-panel">
                     <h2>📜 Літопис</h2>
-                    <div id="gameLog" class="log-content">Завантаження...</div>
+                    <div id="game-log" class="log-content">Завантаження...</div>
                 </div>
             </div>
 
@@ -157,13 +139,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
