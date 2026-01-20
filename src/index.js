@@ -85,8 +85,8 @@ export default {
                 result = { status: 'deleted' };
             }
         }
-        // --- 6. ДОДАТИ ЛОГ / ВИГНАТИ / ВИДАЛИТИ (Для Майстра) ---
-        else if (['add_log', 'kick_player', 'delete_room'].includes(action)) {
+          // 6. ДІЇ МАЙСТРА (GM) + ПЕРЕДАЧА КОРОНИ
+        else if (['add_log', 'kick_player', 'delete_room', 'transfer_gm'].includes(action)) {
             const { roomCode, userId } = params;
             const room = await env.DB.prepare('SELECT * FROM rooms WHERE code = ?').bind(roomCode).first();
             
@@ -94,22 +94,45 @@ export default {
                 let data = JSON.parse(room.data);
                 const me = data.players.find(p => p.id === userId);
                 
+                // Перевіряємо, чи це дійсно GM
                 if(me && me.role === 'GM') {
+                    
+                    // --- ДОДАТИ ЗАПИС ---
                     if (action === 'add_log') {
                         data.logs.push({ text: params.text, time: new Date().toLocaleTimeString('uk-UA') });
                         if(data.logs.length > 50) data.logs.shift();
-                        await env.DB.prepare('UPDATE rooms SET data = ? WHERE code = ?').bind(JSON.stringify(data), roomCode).run();
-                        result = { status: 'success' };
                     }
+                    
+                    // --- ВИГНАТИ ГРАВЦЯ ---
                     else if (action === 'kick_player') {
                         data.players = data.players.filter(p => p.id !== params.targetId);
-                        await env.DB.prepare('UPDATE rooms SET data = ? WHERE code = ?').bind(JSON.stringify(data), roomCode).run();
-                        result = { status: 'success' };
+                        data.logs.push({ text: `GM вигнав гравця`, time: new Date().toLocaleTimeString('uk-UA') });
                     }
+                    
+                    // --- ВИДАЛИТИ КІМНАТУ ---
                     else if (action === 'delete_room') {
                         await env.DB.prepare('DELETE FROM rooms WHERE code = ?').bind(roomCode).run();
                         result = { status: 'success' };
+                        // Тут виходимо, бо кімнати більше немає
+                        return new Response(JSON.stringify(result), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
                     }
+
+                    // --- ПЕРЕДАТИ КОРОНУ (НОВЕ!) ---
+                    else if (action === 'transfer_gm') {
+                        const targetId = params.targetId;
+                        const targetPlayer = data.players.find(p => p.id === targetId);
+                        
+                        if (targetPlayer) {
+                            me.role = 'Player'; // Я стаю звичайним гравцем
+                            targetPlayer.role = 'GM'; // Він стає босом
+                            data.logs.push({ text: `Влада перейшла до ${targetPlayer.name}`, time: new Date().toLocaleTimeString('uk-UA') });
+                        }
+                    }
+
+                    // Зберігаємо зміни в базу
+                    await env.DB.prepare('UPDATE rooms SET data = ? WHERE code = ?').bind(JSON.stringify(data), roomCode).run();
+                    result = { status: 'success' };
+
                 } else {
                     result = { status: 'error', message: "Тільки GM може робити це" };
                 }
@@ -121,4 +144,5 @@ export default {
         return new Response(JSON.stringify({ status: "error", message: e.message }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
   },
+
 };
