@@ -341,7 +341,7 @@ async function refreshState() {
 // --- ОНОВЛЕНА ФУНКЦІЯ renderPlayers (З кнопкою Kick) ---
 function renderPlayers(players) {
     try {
-        const list = document.getElementById('players-list');
+        const list = document.getElementById('playersList');
         if (!list) return; // Якщо списку немає в HTML - виходимо, щоб не було помилки
 
         list.innerHTML = '';
