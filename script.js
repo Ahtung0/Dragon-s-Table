@@ -340,30 +340,44 @@ async function refreshState() {
 
 // --- ОНОВЛЕНА ФУНКЦІЯ renderPlayers (З кнопкою Kick) ---
 function renderPlayers(players) {
-    const list = document.getElementById('playersList');
-    list.innerHTML = players.map(p => {
-        const isGM = p.role === 'GM';
-        const isMe = p.id === user.id;
+    const list = document.getElementById('players-list');
+    list.innerHTML = '';
+
+    // Перевіряємо, чи я є GM
+    const amIGM = players.some(p => p.id === user.id && p.role === 'GM');
+
+    players.forEach(p => {
+        const li = document.createElement('li');
         
-        let actions = '';
+        // Додаємо клас, якщо гравець GM (щоб підсвітити золотим)
+        if (p.role === 'GM') li.classList.add('gm');
+
+        // Основна інформація про гравця
+        const infoSpan = document.createElement('span');
+        // Якщо це GM - додаємо іконку корони перед іменем
+        const icon = p.role === 'GM' ? '<span class="crown-icon">👑</span>' : '';
+        // Додаємо мітку (Ви)
+        const isMe = p.id === user.id ? ' <small>(Ви)</small>' : '';
         
-        // Якщо Я - GM, і це не я -> малюємо кнопку Kick
-        if(user.role === 'GM' && !isMe) {
-            actions = `
-                <div style="display:flex; gap:5px;">
-                    <button class="btn-kick" onclick="kickPlayer('${p.id}', '${p.name}')" title="Вигнати">❌</button>
-                    ${!isGM ? `<button class="btn-transfer" onclick="transferGM('${p.id}')">👑</button>` : ''}
-                </div>
+        infoSpan.innerHTML = `${icon} <strong>${p.name}</strong>${isMe}`;
+        li.appendChild(infoSpan);
+
+        // --- МАЛЮЄМО КНОПКИ (Тільки якщо Я - GM і це НЕ мій рядок) ---
+        if (amIGM && p.id !== user.id) {
+            const actionsSpan = document.createElement('div');
+            actionsSpan.className = 'gm-actions'; // Можна додати стилі для цього класу
+            
+            // Ось ці кнопки, яких не вистачало:
+            actionsSpan.innerHTML = `
+                <button class="btn-transfer" onclick="transferGM('${p.id}')" title="Передати корону">👑</button>
+                <button class="btn-kick" onclick="kickPlayer('${p.id}')" title="Вигнати">✕</button>
             `;
+            
+            li.appendChild(actionsSpan);
         }
 
-        return `
-            <li class="${isGM ? 'gm' : ''}">
-                <span>${isGM ? '👑' : '👤'} <b>${p.name}</b> ${isMe ? '(Ви)' : ''}</span>
-                ${actions}
-            </li>
-        `;
-    }).join('');
+        list.appendChild(li);
+    });
 }
 
 // --- НОВА ФУНКЦІЯ renderLogs ---
