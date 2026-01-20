@@ -190,187 +190,19 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
 }
 .btn-logout:hover { border-color: var(--crimson); background: #300; }
 
-/* Навігація */
+/* --- Навігація меню (ОНОВЛЕНА В СТИЛІ ФЕНТЕЗІ) --- */
 .main-nav {
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;
-}
-
-.nav-btn {
-    flex: 1;
-    background: transparent;
-    border: 1px solid #333;
-    padding: 10px;
-    color: #888;
-    font-family: var(--font-head);
-    cursor: pointer;
-    border-radius: 5px 5px 0 0;
-    transition: all 0.3s;
-}
-
-.nav-btn:hover { background: #222; color: #ccc; }
-
-.nav-btn.active {
-    background: var(--card-bg); /* Зливається з фоном */
-    border-color: var(--gold);
-    border-bottom-color: var(--card-bg); /* Прибираємо лінію знизу */
-    color: var(--gold);
-    position: relative;
-    top: 1px; /* Накладається на лінію */
-}
-
-.gold-line {
-    border: 0;
-    border-top: 1px solid var(--gold);
-    margin-top: -1px; /* Підтягуємо під кнопки */
     margin-bottom: 20px;
-}
-
-.menu-tab-content {
-    animation: fadeIn 0.4s ease;
-}
-
-/* --- Кнопка "Вийти з акаунту" (в меню) --- */
-.menu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #333;
-    margin-bottom: 20px;
-}
-
-.username-gold {
-    color: var(--gold);
-    font-weight: bold;
-    font-size: 1.2em;
-    text-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
-}
-
-.btn-text-logout {
-    background: transparent;
-    border: 1px solid #444;
-    color: #888;
-    padding: 8px 15px;
-    font-family: var(--font-body);
-    font-size: 0.85em;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.btn-text-logout:hover {
-    border-color: var(--crimson);
-    color: var(--crimson);
-    background: rgba(138, 28, 28, 0.1);
-}
-
-/* --- Кнопка "Вийти з кімнати" (в грі) --- */
-.room-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #222; /* Більш чітка лінія */
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-}
-
-/* --- Кнопка "Вийти з кімнати" (Оновлений стиль) --- */
-.btn-leave {
-    background: transparent;          /* Прозорий фон, як у Logout */
-    border: 1px solid #444;           /* Тонка сіра рамка */
-    color: #888;                      /* Сірий текст */
-    padding: 8px 15px;
-    font-family: var(--font-body);
-    font-size: 0.85em;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;        /* Великі літери */
-    letter-spacing: 1px;
-    display: inline-block;            /* Щоб поводилась як текст */
-}
-
-.btn-leave:hover {
-    border-color: var(--crimson);     /* Червона рамка при наведенні */
-    color: var(--crimson);            /* Червоний текст */
-    background: rgba(138, 28, 28, 0.1); /* Легке підсвічування фону */
-    box-shadow: none;                 /* Прибираємо старі тіні */
-    transform: none;                  /* Прибираємо старі зсуви */
-}
-
-/* Прибираємо старі стилі для натискання, якщо вони були */
-.btn-leave:active {
-    transform: none;
-}
-
-/* Вирівнювання тексту в хедері кімнати */
-.room-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-/* Відступ між кнопками входу та реєстрації */
-#auth-screen .btn-primary {
-    margin-top: 30px;
-    margin-bottom: 20px; /* Змініть це число, якщо хочете ще більше місця */
-}
-
-/* Кнопка Вигнати */
-.btn-kick {
-    background: transparent;
-    border: 1px solid #555;
-    color: #ff5555;
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 2px 6px;
-}
-.btn-kick:hover { background: #4a0f0f; border-color: red; }
-
-/* Кнопка видалення кімнати */
-.btn-danger-zone {
-    width: 100%;
-    background: #2a0000;
-    color: #ff3333;
-    border: 1px dashed #ff3333;
-    padding: 10px;
-    cursor: pointer;
-    font-family: var(--font-head);
-    transition: 0.3s;
-}
-.btn-danger-zone:hover { background: #ff0000; color: white; }
-
-/* Стилі Літопису */
-.log-entry {
-    background: #1a1a1a;
-    border-bottom: 1px solid #333;
-    padding: 8px;
-    margin-bottom: 5px;
-    border-left: 2px solid var(--gold);
-}
-.log-time { color: #666; font-size: 0.75em; margin-right: 5px; }
-.log-text { color: #ddd; font-family: var(--font-body); }
-
-/* Стилі для вкладки Кімнат */
-.join-row { display: flex; gap: 5px; }
-.desc { font-size: 0.8em; color: #666; margin-top: -10px; margin-bottom: 10px; }
-
-/* --- Стилі для вкладок авторизації (ОНОВЛЕНІ) --- */
-.auth-tabs {
-    display: flex;
-    gap: 10px; /* Проміжок між кнопками */
-    margin-bottom: 25px;
-    background: #111; /* Темніша підкладка */
+    /* Додаємо темну підкладку, як у вікні входу */
+    background: #111;
     padding: 5px;
     border-radius: 8px;
     border: 1px solid #333;
 }
 
-.auth-tabs .tab-btn {
+.nav-btn {
     flex: 1;
     background: transparent;
     border: 1px solid transparent;
@@ -381,32 +213,34 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;
-    transition: all 0.4s ease;
     border-radius: 6px;
+    transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
 }
 
-/* Ефект при наведенні на неактивну вкладку */
-.auth-tabs .tab-btn:not(.active):hover {
-    color: #ccc;
+/* Ефект при наведенні (світіння рамки) */
+.nav-btn:hover { 
+    color: #ccc; 
     background: rgba(255, 255, 255, 0.05);
     border-color: #444;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
 }
 
-/* Активна вкладка (Світиться золотом) */
-.auth-tabs .tab-btn.active {
+/* Активна вкладка (Золота заливка з блиском) */
+.nav-btn.active {
     background: linear-gradient(135deg, var(--gold) 0%, #a67c00 100%);
-    color: #1a1a1a; /* Темний текст на золотому фоні */
+    color: #1a1a1a;
     border-color: var(--gold-dim);
     font-weight: bold;
     box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 5px rgba(0,0,0,0.2);
-    text-shadow: none; /* Прибираємо тінь тексту для кращої читабельності */
+    /* Скидаємо старі стилі, які робили кнопку схожою на папку */
+    border-bottom-color: var(--gold-dim); 
+    top: 0; 
 }
 
-/* Додатковий магічний блиск для активної кнопки */
-.auth-tabs .tab-btn.active::after {
+/* Додаємо магічний блік (анімація) */
+.nav-btn.active::after {
     content: '';
     position: absolute;
     top: -50%;
@@ -418,24 +252,3 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     animation: shine 3s infinite;
     pointer-events: none;
 }
-
-/* Анімація блиску */
-@keyframes shine {
-    0% { transform: translateX(-100%) rotate(45deg); }
-    20%, 100% { transform: translateX(100%) rotate(45deg); }
-}
-
-/* Стилі для вкладки Профілю (Заготовка) */
-.profile-container { text-align: center; padding: 20px; }
-.avatar-placeholder {
-    width: 80px; height: 80px;
-    background: #111; border: 2px solid var(--gold-dim);
-    border-radius: 50%; margin: 0 auto 15px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2em; color: #333;
-}
-.stats-preview { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
-.stat-box { background: #222; padding: 5px 10px; border-radius: 4px; border: 1px solid #444; font-size: 0.8em; }
-
-@keyframes spin { 100% { transform: rotate(360deg); } }
-.error-text { color: #ff5555; text-align: center; margin-top: 10px; }
