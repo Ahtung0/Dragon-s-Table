@@ -9,7 +9,7 @@ let user = {
 };
 
 let intervalId = null;
-
+let lastLogState = ''; // Тут ми будемо пам'ятати, що було в логах минулого разу
 // --- СТАРТ ---
 window.onload = function() {
     // Перевіряємо збережені дані
@@ -262,25 +262,39 @@ function renderPlayers(players) {
 }
 
 // --- ВІДОБРАЖЕННЯ ЛОГІВ ---
+// --- ОНОВЛЕНА ФУНКЦІЯ renderLogs (БЕЗ БЛИМАННЯ) ---
 function renderLogs(logs) {
-    // ВИПРАВЛЕНО ID: game-log (відповідно до HTML)
     const container = document.getElementById('game-log');
     if (!container) return;
 
-    if(!logs || logs.length === 0) {
-        if (!container.hasChildNodes()) {
+    // 1. Якщо логів взагалі немає
+    if (!logs || logs.length === 0) {
+        // Малюємо заглушку тільки один раз
+        if (!container.innerHTML.includes('Історія ще не написана')) {
             container.innerHTML = '<div style="text-align:center; color:#555; margin-top:20px;">Історія ще не написана...</div>';
         }
         return;
     }
 
-    // Рендеримо логи
+    // 2. --- ГОЛОВНА ФІШКА ---
+    // Перетворюємо нові логи в рядок для порівняння
+    const currentLogState = JSON.stringify(logs);
+
+    // Якщо нові дані ідентичні старим — НІЧОГО НЕ РОБИМО
+    if (currentLogState === lastLogState) return;
+
+    // Якщо дані змінилися:
+    // а) Запам'ятовуємо новий стан
+    lastLogState = currentLogState;
+
+    // б) Перемальовуємо HTML
     container.innerHTML = logs.map(l => `
         <div class="log-entry fade-in">
             <span class="log-time">[${l.time}]</span>
             <span class="log-text">${l.text}</span>
         </div>
-    `).reverse().join(''); // Нові зверху (reverse), якщо хочете знизу - приберіть reverse()
+    `).reverse().join(''); 
+    // reverse() залишає нові повідомлення зверху.
 }
 
 // --- ДІЇ МАЙСТРА ---
