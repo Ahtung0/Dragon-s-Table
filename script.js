@@ -171,6 +171,7 @@ function saveUser(id, name) {
 }
 
 // --- НОВА ФУНКЦІЯ: Перемикання вкладок меню ---
+// --- ОНОВЛЕНА ФУНКЦІЯ: Перемикання вкладок меню ---
 function openMenuTab(tabName) {
     // 1. Ховаємо всі вкладки
     document.getElementById('tab-rooms').classList.add('hidden');
@@ -183,28 +184,27 @@ function openMenuTab(tabName) {
     const buttons = document.querySelectorAll('.nav-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
     
-    // Знаходимо кнопку, яку натиснули (простий спосіб за текстом або порядком)
-    // Або просто передаємо `this` у функцію, але тут зробимо простіше:
-    if(tabName === 'rooms') buttons[0].classList.add('active');
-    if(tabName === 'profile') buttons[1].classList.add('active');
+    // Логіка змінилась, бо ми поміняли кнопки місцями в HTML:
+    // buttons[0] тепер Профіль
+    // buttons[1] тепер Кімнати
+    if(tabName === 'profile') buttons[0].classList.add('active');
+    if(tabName === 'rooms') buttons[1].classList.add('active');
 }
 
+// --- ОНОВЛЕНА ФУНКЦІЯ: showDashboard ---
 function showDashboard() {
-    // Ховаємо екран авторизації та гри
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('game-screen').classList.add('hidden');
     
-    // Показуємо Головне Меню
     const menuScreen = document.getElementById('main-menu-screen');
     menuScreen.classList.remove('hidden');
     menuScreen.classList.add('fade-in');
     
-    // Заповнюємо дані
     document.getElementById('dash-username').innerText = user.name;
-    showError('');
+    document.getElementById('error-msg').innerText = '';
 
-    // За замовчуванням відкриваємо вкладку кімнат
-    openMenuTab('rooms');
+    // ВАЖЛИВО: Відкриваємо профіль за замовчуванням
+    openMenuTab('profile');
 }
 
 async function apiCall(action, params = {}) {
