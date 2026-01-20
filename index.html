@@ -17,19 +17,31 @@
         </header>
 
         <section id="auth-screen" class="card fade-in">
-            <h2 id="auth-title">Вхід у Акаунт</h2>
+            <h2 id="auth-title">Ласкаво просимо</h2>
             
-            <div class="input-group">
-                <label>Логін:</label>
-                <input type="text" id="authName" placeholder="Ім'я користувача">
-            </div>
-            <div class="input-group">
-                <label>Пароль:</label>
-                <input type="password" id="authPass" placeholder="••••••••">
+            <div class="auth-tabs">
+                <button id="btn-tab-login" class="tab-btn active" onclick="switchAuthMode('login')">Вхід</button>
+                <button id="btn-tab-register" class="tab-btn" onclick="switchAuthMode('register')">Реєстрація</button>
             </div>
 
-            <button class="btn btn-primary" onclick="doLogin()">Увійти</button>
-            <button class="btn btn-secondary" onclick="doRegister()">Зареєструватися</button>
+            <div class="auth-form-content">
+                <div class="input-group">
+                    <label>Логін</label>
+                    <input type="text" id="authName" placeholder="Ім'я користувача">
+                </div>
+                
+                <div class="input-group">
+                    <label>Пароль</label>
+                    <input type="password" id="authPass" placeholder="••••••••">
+                </div>
+
+                <div class="input-group hidden" id="group-pass-confirm">
+                    <label>Повторіть пароль</label>
+                    <input type="password" id="authPassConfirm" placeholder="••••••••">
+                </div>
+
+                <button id="submitAuthBtn" class="btn btn-primary" onclick="submitAuth()">Увійти</button>
+            </div>
             
             <p id="error-msg" class="error-text"></p>
         </section>
@@ -149,6 +161,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
