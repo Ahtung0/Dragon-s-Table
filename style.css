@@ -251,11 +251,20 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     transform: rotate(45deg);
     animation: shine 3s infinite;
     pointer-events: none;
+}    
+
+/* --- Фіксований відступ для головної кнопки (Вхід/Реєстрація) --- */
+#submitAuthBtn {
+    margin-top: 30px;    /* Цей відступ відштовхне кнопку вниз від полів */
+    margin-bottom: 20px;
+    width: 100%;
+    display: block;      /* Гарантує правильне позиціонування */
 }
 
-/* --- Відступи для кнопки підтвердження (Вхід та Реєстрація) --- */
-#submitAuthBtn {
-    margin-top: 30px;    /* Однаковий відступ зверху для обох режимів */
-    margin-bottom: 20px; /* Відступ знизу */
-    width: 100%;         /* На всю ширину */
+/* Стиль для тексту помилок (ви казали, що його не було) */
+.error-text {
+    color: #ff5555;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.9em;
 }
