@@ -48,13 +48,10 @@ function switchAuthMode(mode) {
     if (mode === 'register') {
         confirmGroup.classList.remove('hidden');
         submitBtn.innerText = "Зареєструватися";
-        submitBtn.classList.remove('btn-primary');
-        submitBtn.classList.add('btn-crimson'); // Червона кнопка для реєстрації (для стилю)
+        // МИ БІЛЬШЕ НЕ ЗМІНЮЄМО КОЛІР КНОПКИ ТУТ
     } else {
         confirmGroup.classList.add('hidden');
         submitBtn.innerText = "Увійти";
-        submitBtn.classList.add('btn-primary');
-        submitBtn.classList.remove('btn-crimson');
     }
 }
 
