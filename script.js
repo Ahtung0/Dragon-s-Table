@@ -1,183 +1,185 @@
-// ⚠️ ВАЖЛИВО: Оновіть URL
-const SCRIPT_URL = '/.netlify/functions/proxy';
+// ⚠️ Ваш Proxy URL
+const SCRIPT_URL = '/.netlify/functions/proxy'; 
 
-let state = {
+let user = {
+    id: null,
+    name: null,
     room: null,
-    me: { id: null, name: null },
-    role: null,
-    intervalId: null
+    role: null
 };
 
-window.onload = function() { loadSession(); };
+let intervalId = null;
 
-// --- Основні функції ---
-
-async function createRoom() {
-    const { name, pass } = getAuthData();
-    if(!name || !pass) return alert('Введіть ім\'я та придумайте пароль!');
+// --- СТАРТ ---
+window.onload = function() {
+    // Перевіряємо, чи ми вже залогінені
+    const savedId = localStorage.getItem('rpg_uid');
+    const savedName = localStorage.getItem('rpg_name');
     
-    toggleLoader(true);
-    // Відправляємо пароль при створенні
-    const data = await apiCall('create_room', { playerName: name, password: pass });
-    toggleLoader(false);
-
-    if(data.status === 'success') {
-        saveSession(data.userId, name); // Зберігаємо ID, який видав сервер
-        startGame(data.roomCode, data.role);
-    } else {
-        showError('Помилка сервера');
-    }
-}
-
-async function joinRoom(codeFromInput = null) {
-    const { name, pass } = getAuthData();
-    const code = codeFromInput || document.getElementById('roomCodeInput').value.trim().toUpperCase();
-    
-    // Якщо це авто-вхід (без введення пароля руками), ми використовуємо ID з пам'яті
-    const isAutoLogin = codeFromInput && state.me.id; 
-
-    if(!isAutoLogin && (!name || !pass)) {
-        showError('Введіть ім\'я та пароль!');
-        return;
-    }
-
-    toggleLoader(true);
-    
-    const params = { 
-        roomCode: code,
-        playerName: name,
-        password: pass, // Відправляємо пароль
-        userId: state.me.id // Відправляємо старий ID (якщо є)
-    };
-
-    const data = await apiCall('join_room', params);
-    toggleLoader(false);
-
-    if(data.status === 'success') {
-        saveSession(data.userId, name); // Оновлюємо сесію
-        startGame(code, data.role);
-    } else {
-        showError(data.message || 'Помилка входу');
-        if(data.message && data.message.includes('пароль')) {
-            // Якщо помилка в паролі - очищаємо ID, щоб змусити ввести пароль
-            localStorage.removeItem('dnd_id'); 
-            state.me.id = null;
-        }
-    }
-}
-
-async function transferGM(targetId) {
-    if(!confirm(`Передати владу?`)) return;
-    await apiCall('transfer_gm', { 
-        roomCode: state.room, 
-        userId: state.me.id, 
-        targetId: targetId 
-    });
-    refreshState();
-}
-
-// --- Утиліти ---
-
-function getAuthData() {
-    return {
-        name: document.getElementById('playerName').value.trim(),
-        pass: document.getElementById('playerPass').value.trim()
-    };
-}
-
-function saveSession(id, name) {
-    state.me.id = id;
-    state.me.name = name;
-    localStorage.setItem('dnd_id', id);
-    localStorage.setItem('dnd_name', name);
-}
-
-function loadSession() {
-    const savedId = localStorage.getItem('dnd_id');
-    const savedName = localStorage.getItem('dnd_name');
-    const savedRoom = localStorage.getItem('dnd_room');
-
     if (savedId && savedName) {
-        state.me.id = savedId;
-        state.me.name = savedName;
-        document.getElementById('playerName').value = savedName;
-        // Пароль не відновлюємо в поле вводу (безпека), але він і не потрібен, якщо є ID
+        user.id = savedId;
+        user.name = savedName;
+        showDashboard();
+    }
+};
+
+// --- АВТОРИЗАЦІЯ ---
+
+async function doLogin() {
+    const name = document.getElementById('authName').value.trim();
+    const pass = document.getElementById('authPass').value.trim();
+    if(!name || !pass) return showError('Введіть логін і пароль');
+
+    toggleLoader(true);
+    const data = await apiCall('login', { username: name, password: pass });
+    toggleLoader(false);
+
+    if (data.status === 'success') {
+        saveUser(data.userId, data.username);
         
-        if (savedRoom) {
-            console.log("Відновлення сесії...");
-            joinRoom(savedRoom); 
+        // Якщо сервер повернув останню кімнату, можна запропонувати відновити гру
+        if(data.lastRoom) {
+            document.getElementById('roomCodeInput').value = data.lastRoom;
         }
+        showDashboard();
+    } else {
+        showError(data.message);
+    }
+}
+
+async function doRegister() {
+    const name = document.getElementById('authName').value.trim();
+    const pass = document.getElementById('authPass').value.trim();
+    if(!name || !pass) return showError('Введіть дані для реєстрації');
+
+    toggleLoader(true);
+    const data = await apiCall('register', { username: name, password: pass });
+    toggleLoader(false);
+
+    if (data.status === 'success') {
+        alert('Акаунт створено! Тепер увійдіть.');
+        // Можна одразу логінити, але для надійності хай введуть ще раз або просто:
+        saveUser(data.userId, data.username);
+        showDashboard();
+    } else {
+        showError(data.message);
     }
 }
 
 function logout() {
-    if(confirm('Вийти?')) {
-        localStorage.clear();
-        location.reload();
+    localStorage.clear();
+    location.reload();
+}
+
+// --- УПРАВЛІННЯ КІМНАТАМИ ---
+
+async function createRoom() {
+    toggleLoader(true);
+    const data = await apiCall('create_room', { 
+        userId: user.id, 
+        playerName: user.name 
+    });
+    toggleLoader(false);
+
+    if(data.status === 'success') {
+        enterGame(data.roomCode, data.role);
+    } else {
+        showError('Помилка створення');
     }
 }
 
-function startGame(roomCode, role) {
-    state.room = roomCode;
-    state.role = role;
-    localStorage.setItem('dnd_room', roomCode);
+async function joinRoom() {
+    const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+    if(!code) return showError('Введіть код!');
 
-    document.getElementById('login-screen').classList.add('hidden');
+    toggleLoader(true);
+    const data = await apiCall('join_room', { 
+        userId: user.id, 
+        playerName: user.name,
+        roomCode: code 
+    });
+    toggleLoader(false);
+
+    if(data.status === 'success') {
+        enterGame(code, data.role);
+    } else {
+        showError(data.message);
+    }
+}
+
+// --- ГРА ---
+
+function enterGame(roomCode, role) {
+    user.room = roomCode;
+    user.role = role;
+    
+    document.getElementById('dashboard-screen').classList.add('hidden');
     document.getElementById('game-screen').classList.remove('hidden');
     document.getElementById('game-screen').classList.add('fade-in');
+    
     document.getElementById('displayRoomCode').innerText = roomCode;
-
+    
     refreshState();
-    if(state.intervalId) clearInterval(state.intervalId);
-    state.intervalId = setInterval(refreshState, 3000);
+    intervalId = setInterval(refreshState, 3000);
+}
+
+function leaveRoom() {
+    clearInterval(intervalId);
+    user.room = null;
+    document.getElementById('game-screen').classList.add('hidden');
+    showDashboard();
 }
 
 async function refreshState() {
-    if(!state.room) return;
+    if(!user.room) return;
     try {
-        const response = await fetch(`${SCRIPT_URL}?action=get_state&roomCode=${state.room}`);
-        const data = await response.json();
+        const res = await fetch(`${SCRIPT_URL}?action=get_state&roomCode=${user.room}`);
+        const data = await res.json();
+        
         if(data.status === 'success') {
-            const meObj = data.players.find(p => p.id === state.me.id);
-            if(meObj) {
-                state.role = meObj.role;
-                updateHeaderUI();
-            }
-            renderPlayers(data.players);
+            const me = data.players.find(p => p.id === user.id);
+            if(me) user.role = me.role;
+            
+            document.getElementById('roleDisplay').innerText = user.role === 'GM' ? '👑 GM' : '👤 Гравець';
+            
+            const list = document.getElementById('playersList');
+            list.innerHTML = data.players.map(p => {
+                const isGM = p.role === 'GM';
+                return `<li class="${isGM ? 'gm' : ''}"><span>${isGM ? '👑' : '👤'} <b>${p.name}</b></span></li>`;
+            }).join('');
         }
     } catch(e) {}
 }
 
-function updateHeaderUI() {
-    const roleText = state.role === 'GM' ? '👑 GM' : '👤 Гравець';
-    document.getElementById('roleDisplay').innerHTML = `${roleText} <button onclick="logout()" style="margin-left:10px; font-size:0.6em; cursor:pointer; background:none; border:1px solid #555; color:#aaa;">Вихід</button>`;
+// --- УТИЛІТИ ---
+
+function saveUser(id, name) {
+    user.id = id;
+    user.name = name;
+    localStorage.setItem('rpg_uid', id);
+    localStorage.setItem('rpg_name', name);
 }
 
-function renderPlayers(players) {
-    const list = document.getElementById('playersList');
-    list.innerHTML = players.map(p => {
-        const isGM = p.role === 'GM';
-        const isMe = p.id === state.me.id;
-        let actions = '';
-        if(state.role === 'GM' && !isMe && !isGM) {
-            actions = `<button class="btn-transfer" onclick="transferGM('${p.id}')">Коронувати</button>`;
-        }
-        return `<li class="${isGM ? 'gm' : ''}"><span>${isGM ? '👑' : '👤'} <b>${p.name}</b> ${isMe ? '(Ви)' : ''}</span>${actions}</li>`;
-    }).join('');
+function showDashboard() {
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('dashboard-screen').classList.remove('hidden');
+    document.getElementById('dashboard-screen').classList.add('fade-in');
+    
+    document.getElementById('dash-username').innerText = user.name;
+    showError('');
 }
 
 async function apiCall(action, params = {}) {
-    const url = new URL(SCRIPT_URL);
+    const url = new URL(SCRIPT_URL, window.location.origin); // Коректний URL для проксі
     url.searchParams.append('action', action);
     for(const key in params) url.searchParams.append(key, params[key]);
+    
     try {
         const res = await fetch(url, { method: 'POST' });
         return await res.json();
-    } catch(e) { return { status: 'error' }; }
+    } catch(e) { return { status: 'error', message: 'Зв\'язок втрачено' }; }
 }
+
 function toggleLoader(show) { document.getElementById('loader').classList.toggle('hidden', !show); }
-function showError(msg) { 
-    const el = document.getElementById('error-msg'); 
-    el.innerText = msg; 
-    setTimeout(() => el.innerText = '', 5000); 
-}
+function showError(msg) { document.getElementById('error-msg').innerText = msg; }
