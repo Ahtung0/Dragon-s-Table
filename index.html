@@ -122,6 +122,22 @@
                     <div id="gameLog" class="log-content">Завантаження...</div>
                 </div>
             </div>
+
+            <div id="gm-controls" class="card gm-panel hidden" style="margin-top: 20px; border-color: var(--crimson);">
+                <h3 style="color: var(--crimson);">👑 Панель Майстра</h3>
+                
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label>Записати в літопис:</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="gmLogInput" placeholder="Що сталося у світі?">
+                        <button class="btn btn-primary" onclick="sendGmLog()">✍️</button>
+                    </div>
+                </div>
+
+                <hr style="border-color: #444; margin: 15px 0;">
+
+                <button onclick="deleteRoom()" class="btn-danger-zone">☠️ ВИДАЛИТИ КІМНАТУ НАЗАВЖДИ</button>
+            </div>
         </section>
 
         <div id="loader" class="loader-overlay hidden">
@@ -133,6 +149,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
