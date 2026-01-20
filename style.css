@@ -231,6 +231,86 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
     animation: fadeIn 0.4s ease;
 }
 
+/* --- Кнопка "Вийти з акаунту" (в меню) --- */
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #333;
+    margin-bottom: 20px;
+}
+
+.username-gold {
+    color: var(--gold);
+    font-weight: bold;
+    font-size: 1.2em;
+    text-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+}
+
+.btn-text-logout {
+    background: transparent;
+    border: 1px solid #444;
+    color: #888;
+    padding: 8px 15px;
+    font-family: var(--font-body);
+    font-size: 0.85em;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-text-logout:hover {
+    border-color: var(--crimson);
+    color: var(--crimson);
+    background: rgba(138, 28, 28, 0.1);
+}
+
+/* --- Кнопка "Вийти з кімнати" (в грі) --- */
+.room-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #222; /* Більш чітка лінія */
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.btn-leave {
+    background: #1a1a1a;
+    border: 1px solid #d32f2f; /* Червона рамка */
+    color: #e57373;
+    padding: 8px 16px;
+    font-family: var(--font-head);
+    font-size: 0.9em;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-leave:hover {
+    background: #d32f2f;
+    color: white;
+    box-shadow: 0 0 10px rgba(211, 47, 47, 0.4);
+    transform: translateY(-1px);
+}
+
+.btn-leave:active {
+    transform: translateY(1px);
+}
+
+/* Вирівнювання тексту в хедері кімнати */
+.room-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
 /* Стилі для вкладки Кімнат */
 .join-row { display: flex; gap: 5px; }
 .desc { font-size: 0.8em; color: #666; margin-top: -10px; margin-bottom: 10px; }
