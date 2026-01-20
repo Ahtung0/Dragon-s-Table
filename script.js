@@ -1,5 +1,5 @@
 // ⚠️ Ваш Proxy URL
-const SCRIPT_URL = 'https://dnd-game-worker.illia-kushnir-2007.workers.dev'; 
+const SCRIPT_URL = 'https://dragonstable.erykalovnikita305.workers.dev'; 
 
 let user = {
     id: null,
