@@ -34,23 +34,52 @@
             <p id="error-msg" class="error-text"></p>
         </section>
 
-        <section id="dashboard-screen" class="card hidden">
-            <h2 class="welcome-text">Вітаю, <span id="dash-username" style="color:var(--gold)"></span></h2>
-            
-            <div class="actions">
-                <div class="action-block">
-                    <h3>Нова пригода</h3>
-                    <button class="btn btn-crimson" onclick="createRoom()">Створити Кімнату</button>
-                </div>
-                <div class="divider"><span>АБО</span></div>
-                <div class="action-block">
-                    <h3>Приєднатися</h3>
-                    <input type="text" id="roomCodeInput" placeholder="Код (напр. X7B2)" style="text-transform:uppercase; text-align:center;">
-                    <button class="btn btn-primary" style="margin-top:10px;" onclick="joinRoom()">Вперед</button>
+        <section id="main-menu-screen" class="card hidden">
+            <header class="menu-header">
+                <h2 class="welcome-text">Вітаю, <span id="dash-username" style="color:var(--gold)"></span></h2>
+                <button onclick="logout()" class="btn-logout" title="Вийти з акаунту">🚪</button>
+            </header>
+
+            <nav class="main-nav">
+                <button class="nav-btn active" onclick="openMenuTab('rooms')">🏰 Кімнати</button>
+                <button class="nav-btn" onclick="openMenuTab('profile')">👤 Профіль</button>
+            </nav>
+
+            <hr class="gold-line">
+
+            <div id="tab-rooms" class="menu-tab-content">
+                <div class="actions">
+                    <div class="action-block">
+                        <h3>Нова пригода</h3>
+                        <p class="desc">Створити світ для друзів</p>
+                        <button class="btn btn-crimson" onclick="createRoom()">Створити</button>
+                    </div>
+                    
+                    <div class="action-block">
+                        <h3>Приєднатися</h3>
+                        <p class="desc">Введіть код кімнати</p>
+                        <div class="join-row">
+                            <input type="text" id="roomCodeInput" placeholder="CODE" maxlength="6">
+                            <button class="btn btn-primary" onclick="joinRoom()">➜</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <button onclick="logout()" style="margin-top:20px; background:none; border:none; color:#666; cursor:pointer; width:100%;">Вийти з акаунту</button>
+
+            <div id="tab-profile" class="menu-tab-content hidden">
+                <div class="profile-container">
+                    <div class="avatar-placeholder">?</div>
+                    <h3>Налаштування персонажа</h3>
+                    <p style="color:#888; font-size:0.9em;">Тут скоро з'явиться редактор зовнішності.</p>
+                    
+                    <div class="stats-preview">
+                        <div class="stat-box">STR: 10</div>
+                        <div class="stat-box">DEX: 10</div>
+                        <div class="stat-box">INT: 10</div>
+                    </div>
+                </div>
+            </div>
+
         </section>
 
         <section id="game-screen" class="card hidden">
@@ -84,3 +113,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
