@@ -359,37 +359,70 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 10px rgb
 .join-row { display: flex; gap: 5px; }
 .desc { font-size: 0.8em; color: #666; margin-top: -10px; margin-bottom: 10px; }
 
-/* Стилі для вкладок авторизації */
+/* --- Стилі для вкладок авторизації (ОНОВЛЕНІ) --- */
 .auth-tabs {
     display: flex;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #333;
+    gap: 10px; /* Проміжок між кнопками */
+    margin-bottom: 25px;
+    background: #111; /* Темніша підкладка */
+    padding: 5px;
+    border-radius: 8px;
+    border: 1px solid #333;
 }
 
 .auth-tabs .tab-btn {
     flex: 1;
     background: transparent;
-    border: none;
-    padding: 15px;
-    color: #666;
+    border: 1px solid transparent;
+    padding: 12px;
+    color: #888;
     font-family: var(--font-head);
     font-size: 1.1em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     cursor: pointer;
-    transition: all 0.3s;
-    border-bottom: 3px solid transparent;
+    transition: all 0.4s ease;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
 }
 
-.auth-tabs .tab-btn:hover { color: #aaa; }
+/* Ефект при наведенні на неактивну вкладку */
+.auth-tabs .tab-btn:not(.active):hover {
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #444;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
 
+/* Активна вкладка (Світиться золотом) */
 .auth-tabs .tab-btn.active {
-    color: var(--gold);
-    border-bottom: 3px solid var(--gold);
-    background: linear-gradient(to top, rgba(212, 175, 55, 0.1) 0%, transparent 100%);
+    background: linear-gradient(135deg, var(--gold) 0%, #a67c00 100%);
+    color: #1a1a1a; /* Темний текст на золотому фоні */
+    border-color: var(--gold-dim);
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 5px rgba(0,0,0,0.2);
+    text-shadow: none; /* Прибираємо тінь тексту для кращої читабельності */
 }
 
-#submitAuthBtn {
-    margin-top: 20px;
-    width: 100%;
+/* Додатковий магічний блиск для активної кнопки */
+.auth-tabs .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(to bottom right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+    pointer-events: none;
+}
+
+/* Анімація блиску */
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    20%, 100% { transform: translateX(100%) rotate(45deg); }
 }
 
 /* Стилі для вкладки Профілю (Заготовка) */
