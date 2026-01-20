@@ -113,9 +113,13 @@ function enterGame(roomCode, role) {
     user.room = roomCode;
     user.role = role;
     
-    document.getElementById('dashboard-screen').classList.add('hidden');
-    document.getElementById('game-screen').classList.remove('hidden');
-    document.getElementById('game-screen').classList.add('fade-in');
+    // ВИПРАВЛЕННЯ ТУТ: Ховаємо нове меню, а не старий дашборд
+    document.getElementById('main-menu-screen').classList.add('hidden');
+    
+    // Показуємо екран гри
+    const gameScreen = document.getElementById('game-screen');
+    gameScreen.classList.remove('hidden');
+    gameScreen.classList.add('fade-in');
     
     document.getElementById('displayRoomCode').innerText = roomCode;
     
@@ -124,10 +128,16 @@ function enterGame(roomCode, role) {
 }
 
 function leaveRoom() {
+    if(!confirm("Ви точно хочете вийти в меню?")) return;
+
     clearInterval(intervalId);
     user.room = null;
+    
+    // Ховаємо гру
     document.getElementById('game-screen').classList.add('hidden');
-    showDashboard();
+    
+    // ВИПРАВЛЕННЯ ТУТ: Показуємо головне меню
+    showDashboard(); 
 }
 
 async function refreshState() {
