@@ -1,6 +1,6 @@
 export default {
   async fetch(request, env, ctx) {
-    // 1. CORS
+    // 1. CORS (Дозволяємо запити з браузера)
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
@@ -9,7 +9,7 @@ export default {
 
     if (request.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-    // 2. ПАРАМЕТРИ
+    // 2. ОТРИМАННЯ ПАРАМЕТРІВ (URL + JSON)
     const url = new URL(request.url);
     let params = {};
     
@@ -22,13 +22,13 @@ export default {
         } catch (e) {}
     }
 
-    // 3. ДІЯ
+    // 3. ПЕРЕВІРКА ДІЇ
     const action = params.action;
     if (!action) {
         return new Response(JSON.stringify({ status: 'error', message: 'Unknown action' }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // ОГОЛОШУЄМО ГОЛОВНУ ЗМІННУ (let, щоб можна було змінювати)
+    // ОГОЛОШУЄМО ГОЛОВНУ ЗМІННУ РЕЗУЛЬТАТУ (let - її можна змінювати)
     let result = { status: 'error', message: 'Action failed' };
 
     try {
@@ -38,8 +38,8 @@ export default {
 
             if (!username || !password) throw new Error("Введіть логін і пароль");
             
-            // --- КАПЧА ---
-            const SECRET_KEY = '0x4AAAAAAAznk_XXXXXXXXXXXXX'; // ⚠️ ВСТАВТЕ ВАШ SECRET KEY
+            // --- ПЕРЕВІРКА КАПЧІ ---
+            const SECRET_KEY = '0x4AAAAAAAznk_XXXXXXXXXXXXX'; // ⚠️ ЗАМІНИ НА СВІЙ SECRET KEY З CLOUDFLARE
 
             const formData = new FormData();
             formData.append('secret', SECRET_KEY);
@@ -48,17 +48,17 @@ export default {
 
             const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
             
-            // ВИПРАВЛЕННЯ: Використовуємо унікальне ім'я змінної
-            const turnstileResponse = await fetch(verifyUrl, {
+            // ВИПРАВЛЕННЯ: Використовуємо унікальну назву captchaResponse
+            const captchaResponse = await fetch(verifyUrl, {
                 body: formData,
                 method: 'POST',
             });
 
-            const outcome = await turnstileResponse.json();
+            const outcome = await captchaResponse.json();
             if (!outcome.success) {
                 return new Response(JSON.stringify({ status: 'error', message: "Ви не пройшли перевірку на робота" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
             }
-            // -------------
+            // -----------------------
 
             const existing = await env.DB.prepare('SELECT * FROM users WHERE username = ?').bind(username).first();
             if (existing) {
