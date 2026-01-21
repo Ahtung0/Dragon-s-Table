@@ -28,7 +28,7 @@ export default {
         return new Response(JSON.stringify({ status: 'error', message: 'Unknown action' }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // ОГОЛОШУЄМО ГОЛОВНУ ЗМІННУ РЕЗУЛЬТАТУ
+    // ОГОЛОШУЄМО ГОЛОВНУ ЗМІННУ (let, щоб можна було змінювати)
     let result = { status: 'error', message: 'Action failed' };
 
     try {
@@ -39,7 +39,7 @@ export default {
             if (!username || !password) throw new Error("Введіть логін і пароль");
             
             // --- КАПЧА ---
-            const SECRET_KEY = '0x4AAAAAAAznk_XXXXXXXXXXXXX'; // ⚠️ ВАШ SECRET KEY
+            const SECRET_KEY = '0x4AAAAAAAznk_XXXXXXXXXXXXX'; // ⚠️ ВСТАВТЕ ВАШ SECRET KEY
 
             const formData = new FormData();
             formData.append('secret', SECRET_KEY);
@@ -48,7 +48,7 @@ export default {
 
             const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
             
-            // ВИПРАВЛЕННЯ: Використовуємо іншу назву (turnstileResponse), щоб не конфліктувати з result
+            // ВИПРАВЛЕННЯ: Використовуємо унікальне ім'я змінної
             const turnstileResponse = await fetch(verifyUrl, {
                 body: formData,
                 method: 'POST',
