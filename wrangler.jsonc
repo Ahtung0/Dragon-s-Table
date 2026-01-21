@@ -5,7 +5,7 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "dragon-s-table-db",
+      "database_name": "dragonstable",
       "database_id": "fe989042-b482-42ba-872e-818cfac1e352"
     }
   ]
