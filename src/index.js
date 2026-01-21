@@ -1,6 +1,6 @@
 export default {
   async fetch(request, env, ctx) {
-    // 1. НАЛАШТУВАННЯ ДОСТУПУ (CORS)
+    // 1. CORS
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
@@ -9,43 +9,37 @@ export default {
 
     if (request.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-    // 2. ОТРИМАННЯ ПАРАМЕТРІВ
+    // 2. ПАРАМЕТРИ
     const url = new URL(request.url);
     let params = {};
     
-    // Шукаємо в адресному рядку
     url.searchParams.forEach((val, key) => params[key] = val);
 
-    // Шукаємо в тілі запиту (JSON)
     if (request.method === 'POST') {
         try {
             const body = await request.json();
             Object.assign(params, body);
-        } catch (e) {
-            // Не JSON, ігноруємо
-        }
+        } catch (e) {}
     }
 
-    // 3. ОБРОБКА ДІЙ
+    // 3. ДІЯ
     const action = params.action;
-
-    // Якщо дія не прийшла - видаємо помилку
     if (!action) {
         return new Response(JSON.stringify({ status: 'error', message: 'Unknown action' }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // ОГОЛОШУЄМО result ЯК ЗМІННУ, ЯКУ МОЖНА МІНЯТИ (let)
+    // ОГОЛОШУЄМО ГОЛОВНУ ЗМІННУ РЕЗУЛЬТАТУ
     let result = { status: 'error', message: 'Action failed' };
 
     try {
-        // === РЕЄСТРАЦІЯ (З ВИПРАВЛЕНОЮ КАПЧЕЮ) ===
+        // === РЕЄСТРАЦІЯ ===
         if (action === 'register') {
             const { username, password, token } = params;
 
             if (!username || !password) throw new Error("Введіть логін і пароль");
             
-            // --- ПЕРЕВІРКА КАПЧІ ---
-            const SECRET_KEY = '0x4AAAAAAAznk_XXXXXXXXXXXXX'; // ⚠️ ВСТАВТЕ СЮДИ ВАШ SECRET KEY З CLOUDFLARE
+            // --- КАПЧА ---
+            const SECRET_KEY = '0x4AAAAAAAznk_XXXXXXXXXXXXX'; // ⚠️ ВАШ SECRET KEY
 
             const formData = new FormData();
             formData.append('secret', SECRET_KEY);
@@ -54,7 +48,7 @@ export default {
 
             const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
             
-            // --- ВИПРАВЛЕННЯ ТУТ: ВИКОРИСТОВУЄМО ІНШУ НАЗВУ ЗМІННОЇ ---
+            // ВИПРАВЛЕННЯ: Використовуємо іншу назву (turnstileResponse), щоб не конфліктувати з result
             const turnstileResponse = await fetch(verifyUrl, {
                 body: formData,
                 method: 'POST',
@@ -64,7 +58,7 @@ export default {
             if (!outcome.success) {
                 return new Response(JSON.stringify({ status: 'error', message: "Ви не пройшли перевірку на робота" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
             }
-            // -----------------------
+            // -------------
 
             const existing = await env.DB.prepare('SELECT * FROM users WHERE username = ?').bind(username).first();
             if (existing) {
