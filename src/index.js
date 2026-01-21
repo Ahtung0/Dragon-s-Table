@@ -28,8 +28,8 @@ export default {
         return new Response(JSON.stringify({ status: 'error', message: 'Unknown action' }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // === ГОЛОВНА ЗМІННА ===
-    // Ми використовуємо 'let', щоб її можна було змінювати
+    // === ГОЛОВНА ЗМІННА (let) ===
+    // Сюди ми запишемо результат, який побачить користувач
     let result = { status: 'error', message: 'Action failed' };
 
     try {
@@ -40,7 +40,7 @@ export default {
             if (!username || !password) throw new Error("Введіть логін і пароль");
             
             // --- ПЕРЕВІРКА КАПЧІ ---
-            const SECRET_KEY = '0x4AAAAAAAznk_XXXXXXXXXXXXX'; // ⚠️ ВСТАВТЕ СЮДИ ВАШ SECRET KEY
+            const SECRET_KEY = '0x4AAAAAAAznk_XXXXXXXXXXXXX'; // ⚠️ ВСТАВ СЮДИ СВІЙ SECRET KEY
 
             const formData = new FormData();
             formData.append('secret', SECRET_KEY);
@@ -49,26 +49,23 @@ export default {
 
             const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
             
-            // --- ВИПРАВЛЕННЯ ТУТ ---
-            // Ми використовуємо ІНШУ змінну для капчі, щоб не ламати 'result'
-            const turnstileResponse = await fetch(verifyUrl, {
+            // !!! УВАГА: Я ЗМІНИВ НАЗВУ ЗМІННОЇ НИЖЧЕ, ЩОБ НЕ БУЛО ПОМИЛКИ !!!
+            const verifyResponse = await fetch(verifyUrl, {
                 body: formData,
                 method: 'POST',
             });
 
-            const outcome = await turnstileResponse.json();
+            const outcome = await verifyResponse.json();
             
             if (!outcome.success) {
-                // Якщо капча не пройшла - повертаємо помилку
                 return new Response(JSON.stringify({ status: 'error', message: "Ви не пройшли перевірку на робота" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
             }
             // -----------------------
 
-            // Перевірка в базі даних
+            // Тепер працюємо з базою (тут використовуємо головну змінну result)
             const existing = await env.DB.prepare('SELECT * FROM users WHERE username = ?').bind(username).first();
             
             if (existing) {
-                // Тут ми змінюємо головну змінну 'result'
                 result = { status: 'error', message: "Ім'я вже зайняте" };
             } else {
                 const userId = crypto.randomUUID();
