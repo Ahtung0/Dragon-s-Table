@@ -61,13 +61,16 @@ function switchAuthMode(mode) {
     document.getElementById('btn-tab-register').classList.toggle('active', mode === 'register');
 
     const confirmGroup = document.getElementById('group-pass-confirm');
+    const captchaContainer = document.getElementById('captcha-container'); // Знаходимо капчу
     const submitBtn = document.getElementById('submitAuthBtn');
 
     if (mode === 'register') {
         confirmGroup.classList.remove('hidden');
+        captchaContainer.classList.remove('hidden'); // ПОКАЗУЄМО
         submitBtn.innerText = "Зареєструватися";
     } else {
         confirmGroup.classList.add('hidden');
+        captchaContainer.classList.add('hidden'); // ХОВАЄМО
         submitBtn.innerText = "Увійти";
     }
 }
@@ -85,7 +88,31 @@ async function submitAuth() {
         toggleLoader(true);
         const data = await apiCall('register', { username: name, password: pass });
         toggleLoader(false);
+        
+        // ОТРИМУЄМО ТОКЕН КАПЧІ
+        const formData = new FormData(document.querySelector('.auth-form-content').closest('section') || document.body); 
+        // Але простіше взяти через API Cloudflare, якщо він створив input:
+        const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
 
+        if (!turnstileToken) {
+            return showError('Будь ласка, пройдіть перевірку "Я не робот"');
+        }
+
+        toggleLoader(true);
+        // Додаємо token у запит
+        const data = await apiCall('register', { 
+            username: name, 
+            password: pass,
+            token: turnstileToken // ВІДПРАВЛЯЄМО ТОКЕН
+        });
+
+        // Якщо помилка - скидаємо капчу, щоб можна було спробувати ще раз
+        if (data.status !== 'success') {
+            try { turnstile.reset(); } catch(e){}
+        }
+
+        toggleLoader(false);
+        
         if (data.status === 'success') {
             alert('Акаунт успішно створено! Входимо...');
             saveUser(data.userId, data.username);
