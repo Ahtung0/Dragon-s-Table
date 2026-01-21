@@ -26,6 +26,27 @@ export default {
         // --- 1. РЕЄСТРАЦІЯ ---
         if (action === 'register') {
             const { username, password } = params;
+            if (!username || !password) throw new Error("Введіть логін і пароль");
+            
+            // --- ПЕРЕВІРКА КАПЧІ ---
+            const SECRET_KEY = '0x4AAAAAACN2TjOv0E-RBE5oRE3h3aTw_ZE'; // Вставте Secret Key з Cloudflare Dashboard
+
+            const formData = new FormData();
+            formData.append('secret', SECRET_KEY);
+            formData.append('response', token);
+            formData.append('remoteip', request.headers.get('CF-Connecting-IP'));
+
+            const url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+            const result = await fetch(url, {
+                body: formData,
+                method: 'POST',
+            });
+
+            const outcome = await result.json();
+            if (!outcome.success) {
+                return new Response(JSON.stringify({ status: 'error', message: "Ви не пройшли перевірку на робота" }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+            }
+          
             const existing = await env.DB.prepare('SELECT * FROM users WHERE username = ?').bind(username).first();
             if (existing) {
                 result = { status: 'error', message: "Ім'я зайняте" };
@@ -161,4 +182,5 @@ export default {
   },
 
 };
+
 
