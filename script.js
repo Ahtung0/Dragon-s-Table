@@ -1,4 +1,4 @@
-// ⚠️ Ваш Proxy URL
+// ⚠️ ВСТАВТЕ ТУТ ВАШЕ ПОСИЛАННЯ НА WORKER (наприклад https://dnd-game.vash-nik.workers.dev)
 const SCRIPT_URL = 'https://dragonstable.erykalovnikita305.workers.dev'; 
 
 let user = {
@@ -9,10 +9,12 @@ let user = {
 };
 
 let intervalId = null;
-let lastLogState = ''; // Тут ми будемо пам'ятати, що було в логах минулого разу
+let lastLogState = '';
+let currentAuthMode = 'login'; 
+
 // --- СТАРТ ---
 window.onload = function() {
-    // Перевіряємо збережені дані
+    console.log("Script loaded successfully");
     const savedId = localStorage.getItem('rpg_uid');
     const savedName = localStorage.getItem('rpg_name');
     
@@ -23,116 +25,108 @@ window.onload = function() {
     }
 };
 
-// --- КОМУНІКАЦІЯ З СЕРВЕРОМ (СЕРЦЕ ГРИ) ---
+// --- КОМУНІКАЦІЯ ---
 async function apiCall(action, params = {}) {
-    // Ми відправляємо дані як JSON об'єкт, бо новий сервер цього чекає
     const bodyData = { action, ...params };
 
     try {
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(bodyData)
         });
 
-        if (!response.ok) {
-            throw new Error(`Server Error: ${response.status}`);
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.error("Server raw response:", text);
+            throw new Error(`Server Error: ${text.substring(0, 50)}...`);
         }
-
-        return await response.json();
     } catch (error) {
         console.error("API Error:", error);
-        return { status: 'error', message: 'Зв\'язок з сервером втрачено' };
+        return { status: 'error', message: error.message };
     }
 }
 
 // --- АВТОРИЗАЦІЯ ---
-let currentAuthMode = 'login'; 
-
 function switchAuthMode(mode) {
     currentAuthMode = mode;
-    document.getElementById('error-msg').innerText = '';
-    document.getElementById('authPass').value = '';
-    document.getElementById('authPassConfirm').value = '';
-
-    document.getElementById('btn-tab-login').classList.toggle('active', mode === 'login');
-    document.getElementById('btn-tab-register').classList.toggle('active', mode === 'register');
+    const errEl = document.getElementById('error-msg');
+    if(errEl) errEl.innerText = '';
+    
+    const btnLogin = document.getElementById('btn-tab-login');
+    const btnReg = document.getElementById('btn-tab-register');
+    if(btnLogin) btnLogin.classList.toggle('active', mode === 'login');
+    if(btnReg) btnReg.classList.toggle('active', mode === 'register');
 
     const confirmGroup = document.getElementById('group-pass-confirm');
-    const captchaContainer = document.getElementById('captcha-container'); // Знаходимо капчу
+    const captchaContainer = document.getElementById('captcha-container');
     const submitBtn = document.getElementById('submitAuthBtn');
 
     if (mode === 'register') {
-        confirmGroup.classList.remove('hidden');
-        captchaContainer.classList.remove('hidden'); // ПОКАЗУЄМО
-        submitBtn.innerText = "Зареєструватися";
+        if(confirmGroup) confirmGroup.classList.remove('hidden');
+        if(captchaContainer) captchaContainer.classList.remove('hidden');
+        if(submitBtn) submitBtn.innerText = "Зареєструватися";
+        // Скидаємо капчу при перемиканні
+        if(window.turnstile) window.turnstile.reset();
     } else {
-        confirmGroup.classList.add('hidden');
-        captchaContainer.classList.add('hidden'); // ХОВАЄМО
-        submitBtn.innerText = "Увійти";
+        if(confirmGroup) confirmGroup.classList.add('hidden');
+        if(captchaContainer) captchaContainer.classList.add('hidden');
+        if(submitBtn) submitBtn.innerText = "Увійти";
     }
 }
 
 async function submitAuth() {
-    const name = document.getElementById('authName').value.trim();
-    const pass = document.getElementById('authPass').value.trim();
+    const nameInput = document.getElementById('authName');
+    const passInput = document.getElementById('authPass');
+    
+    if(!nameInput || !passInput) return;
+    
+    const name = nameInput.value.trim();
+    const pass = passInput.value.trim();
     
     if(!name || !pass) return showError('Заповніть усі поля!');
 
     if (currentAuthMode === 'register') {
-        const passConfirm = document.getElementById('authPassConfirm').value.trim();
+        const passConfirmInput = document.getElementById('authPassConfirm');
+        const passConfirm = passConfirmInput ? passConfirmInput.value.trim() : '';
+        
         if (pass !== passConfirm) return showError('Паролі не співпадають!');
 
-        toggleLoader(true);
-        const data = await apiCall('register', { username: name, password: pass });
-        toggleLoader(false);
-        
-        // ОТРИМУЄМО ТОКЕН КАПЧІ
-        const formData = new FormData(document.querySelector('.auth-form-content').closest('section') || document.body); 
-        // Але простіше взяти через API Cloudflare, якщо він створив input:
-        const turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+        // КАПЧА
+        const turnstileInput = document.querySelector('[name="cf-turnstile-response"]');
+        const token = turnstileInput ? turnstileInput.value : null;
 
-        if (!turnstileToken) {
-            return showError('Будь ласка, пройдіть перевірку "Я не робот"');
+        if (!token) {
+            return showError('Будь ласка, пройдіть капчу (Я не робот)');
         }
 
         toggleLoader(true);
-        // Додаємо token у запит
-        const data = await apiCall('register', { 
-            username: name, 
-            password: pass,
-            token: turnstileToken // ВІДПРАВЛЯЄМО ТОКЕН
-        });
-
-        // Якщо помилка - скидаємо капчу, щоб можна було спробувати ще раз
-        if (data.status !== 'success') {
-            try { turnstile.reset(); } catch(e){}
-        }
-
+        // Використовуємо responseData замість data, щоб уникнути конфліктів
+        const responseData = await apiCall('register', { username: name, password: pass, token: token });
         toggleLoader(false);
-        
-        if (data.status === 'success') {
-            alert('Акаунт успішно створено! Входимо...');
-            saveUser(data.userId, data.username);
-            showDashboard();
+
+        if (responseData.status === 'success') {
+            alert('Успіх! Тепер увійдіть.');
+            switchAuthMode('login');
         } else {
-            showError(data.message);
+            showError(responseData.message);
+            if(window.turnstile) window.turnstile.reset();
         }
     } else {
+        // ВХІД
         toggleLoader(true);
-        const data = await apiCall('login', { username: name, password: pass });
+        const loginData = await apiCall('login', { username: name, password: pass });
         toggleLoader(false);
 
-        if (data.status === 'success') {
-            saveUser(data.userId, data.username);
-            if(data.lastRoom) {
-                document.getElementById('roomCodeInput').value = data.lastRoom;
-            }
+        if (loginData.status === 'success') {
+            saveUser(loginData.userId, loginData.username);
+            const roomInput = document.getElementById('roomCodeInput');
+            if(roomInput && loginData.lastRoom) roomInput.value = loginData.lastRoom;
             showDashboard();
         } else {
-            showError(data.message);
+            showError(loginData.message);
         }
     }
 }
@@ -142,104 +136,105 @@ function logout() {
     location.reload();
 }
 
-// --- УПРАВЛІННЯ КІМНАТАМИ ---
+// --- ІНТЕРФЕЙС ---
+function showDashboard() {
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('main-menu-screen').classList.remove('hidden');
+    document.getElementById('dash-username').innerText = user.name;
+    openMenuTab('profile');
+}
 
+function openMenuTab(tabName) {
+    const tabRooms = document.getElementById('tab-rooms');
+    const tabProfile = document.getElementById('tab-profile');
+    if(tabRooms) tabRooms.classList.add('hidden');
+    if(tabProfile) tabProfile.classList.add('hidden');
+    
+    const target = document.getElementById(`tab-${tabName}`);
+    if(target) target.classList.remove('hidden');
+    
+    const buttons = document.querySelectorAll('.nav-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    // Проста логіка кнопок
+    if(tabName === 'profile' && buttons[0]) buttons[0].classList.add('active');
+    if(tabName === 'rooms' && buttons[1]) buttons[1].classList.add('active');
+}
+
+// --- КІМНАТИ ---
 async function createRoom() {
     toggleLoader(true);
-    const data = await apiCall('create_room', { 
-        userId: user.id, 
-        playerName: user.name 
-    });
+    const res = await apiCall('create_room', { userId: user.id, playerName: user.name });
     toggleLoader(false);
 
-    if(data.status === 'success') {
-        enterGame(data.roomCode, data.role);
-    } else {
-        showError('Помилка створення');
-    }
+    if(res.status === 'success') enterGame(res.roomCode, res.role);
+    else showError('Помилка створення');
 }
 
 async function joinRoom() {
-    const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+    const codeInput = document.getElementById('roomCodeInput');
+    const code = codeInput ? codeInput.value.trim().toUpperCase() : '';
     if(!code) return showError('Введіть код!');
 
     toggleLoader(true);
-    const data = await apiCall('join_room', { 
-        userId: user.id, 
-        playerName: user.name,
-        roomCode: code 
-    });
+    const res = await apiCall('join_room', { userId: user.id, playerName: user.name, roomCode: code });
     toggleLoader(false);
 
-    if(data.status === 'success') {
-        enterGame(code, data.role);
-    } else {
-        showError(data.message);
-    }
+    if(res.status === 'success') enterGame(code, res.role);
+    else showError(res.message);
 }
 
 // --- ГРА ---
-
 function enterGame(roomCode, role) {
     user.room = roomCode;
     user.role = role;
     
     document.getElementById('main-menu-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
     
-    const gameScreen = document.getElementById('game-screen');
-    gameScreen.classList.remove('hidden');
-    gameScreen.classList.add('fade-in');
-    
-    document.getElementById('displayRoomCode').innerText = roomCode;
+    const codeDisp = document.getElementById('displayRoomCode');
+    if(codeDisp) codeDisp.innerText = roomCode;
     
     refreshState();
+    if(intervalId) clearInterval(intervalId);
     intervalId = setInterval(refreshState, 3000);
 }
 
 function leaveRoom() {
-    if(!confirm("Ви точно хочете вийти в меню?")) return;
-
-    clearInterval(intervalId);
+    if(!confirm("Вийти в меню?")) return;
+    if(intervalId) clearInterval(intervalId);
     user.room = null;
     document.getElementById('game-screen').classList.add('hidden');
     showDashboard(); 
 }
 
-// --- ГОЛОВНА ФУНКЦІЯ ОНОВЛЕННЯ ---
 async function refreshState() {
     if(!user.room) return;
     
-    // Використовуємо apiCall для стабільності
     const data = await apiCall('get_state', { roomCode: user.room });
-
-    // Очищаємо "Завантаження...", якщо воно ще там
-    const logContainer = document.getElementById('game-log');
-    if (logContainer && logContainer.innerHTML.includes('Завантаження...')) {
-        logContainer.innerHTML = '';
-    }
     
+    const logDiv = document.getElementById('game-log');
+    if(logDiv && logDiv.innerHTML.includes('Завантаження')) logDiv.innerHTML = '';
+
     if(data.status === 'deleted') {
-        alert('Майстер розпустив цю кімнату.');
+        alert('Кімнату видалено');
         leaveRoom();
         return;
     }
     
     if(data.status === 'success') {
-        const amIHere = data.players.find(p => p.id === user.id);
-        if(!amIHere) {
-            alert('Вас було вигнано з кімнати.');
-            leaveRoom();
-            return;
-        }
+        const me = data.players.find(p => p.id === user.id);
+        if(!me) { alert('Вас вигнали'); leaveRoom(); return; }
 
-        user.role = amIHere.role;
-        document.getElementById('roleDisplay').innerText = user.role === 'GM' ? '👑 GM' : '👤 Гравець';
+        user.role = me.role;
+        const roleEl = document.getElementById('roleDisplay');
+        if(roleEl) roleEl.innerText = user.role === 'GM' ? '👑 GM' : '👤 Гравець';
         
-        // Панель GM
-        if(user.role === 'GM') {
-            document.getElementById('gm-controls').classList.remove('hidden');
-        } else {
-            document.getElementById('gm-controls').classList.add('hidden');
+        const gmControls = document.getElementById('gm-controls');
+        if(gmControls) {
+            if(user.role === 'GM') gmControls.classList.remove('hidden');
+            else gmControls.classList.add('hidden');
         }
 
         renderPlayers(data.players);
@@ -247,145 +242,87 @@ async function refreshState() {
     }
 }
 
-// --- ВІДОБРАЖЕННЯ ГРАВЦІВ ---
 function renderPlayers(players) {
-    try {
-        // ВИПРАВЛЕНО ID: players-list (відповідно до HTML)
-        const list = document.getElementById('players-list');
-        if (!list) return;
+    const list = document.getElementById('players-list');
+    if (!list) return;
+    list.innerHTML = '';
 
-        list.innerHTML = '';
-        const myId = user.id;
-        const amIGM = players.some(p => p.id === myId && p.role === 'GM');
+    const amIGM = players.some(p => p.id === user.id && p.role === 'GM');
 
-        players.forEach(p => {
-            const li = document.createElement('li');
-            if (p.role === 'GM') li.classList.add('gm');
+    players.forEach(p => {
+        const li = document.createElement('li');
+        if (p.role === 'GM') li.classList.add('gm');
 
-            const infoSpan = document.createElement('span');
-            const icon = p.role === 'GM' ? '<span class="crown-icon">👑</span>' : '';
-            const isMe = p.id === myId ? ' <small>(Ви)</small>' : '';
-            
-            infoSpan.innerHTML = `${icon} <strong>${p.name}</strong>${isMe}`;
-            li.appendChild(infoSpan);
+        const icon = p.role === 'GM' ? '👑' : '';
+        const isMe = p.id === user.id ? ' <small>(Ви)</small>' : '';
+        
+        let buttonsHtml = '';
+        if (amIGM && p.id !== user.id) {
+            buttonsHtml = `
+                <div style="display:inline-flex; gap:5px; margin-left:10px;">
+                    <button onclick="transferGM('${p.id}')" title="Передати">👑</button>
+                    <button onclick="kickPlayer('${p.id}')" title="Вигнати">✕</button>
+                </div>
+            `;
+        }
 
-            // Кнопки управління (тільки для GM і не для себе)
-            if (amIGM && p.id !== myId) {
-                const actionsSpan = document.createElement('div');
-                actionsSpan.style.display = 'flex';
-                actionsSpan.style.gap = '5px';
-                
-                actionsSpan.innerHTML = `
-                    <button class="btn-transfer" onclick="transferGM('${p.id}')" title="Передати корону">👑</button>
-                    <button class="btn-kick" onclick="kickPlayer('${p.id}')" title="Вигнати">✕</button>
-                `;
-                li.appendChild(actionsSpan);
-            }
-            list.appendChild(li);
-        });
-    } catch (e) {
-        console.error("Render Error:", e);
-    }
+        li.innerHTML = `<span>${icon} <strong>${p.name}</strong>${isMe}</span>${buttonsHtml}`;
+        list.appendChild(li);
+    });
 }
 
-// --- ВІДОБРАЖЕННЯ ЛОГІВ ---
-// --- ОНОВЛЕНА ФУНКЦІЯ renderLogs (БЕЗ БЛИМАННЯ) ---
 function renderLogs(logs) {
     const container = document.getElementById('game-log');
     if (!container) return;
 
-    // 1. Якщо логів взагалі немає
     if (!logs || logs.length === 0) {
-        // Малюємо заглушку тільки один раз
-        if (!container.innerHTML.includes('Історія ще не написана')) {
-            container.innerHTML = '<div style="text-align:center; color:#555; margin-top:20px;">Історія ще не написана...</div>';
-        }
+        if(!container.innerHTML.includes('Історія')) 
+            container.innerHTML = '<div style="text-align:center; color:#555;">Історія порожня...</div>';
         return;
     }
 
-    // 2. --- ГОЛОВНА ФІШКА ---
-    // Перетворюємо нові логи в рядок для порівняння
-    const currentLogState = JSON.stringify(logs);
+    const newState = JSON.stringify(logs);
+    if (newState === lastLogState) return;
+    lastLogState = newState;
 
-    // Якщо нові дані ідентичні старим — НІЧОГО НЕ РОБИМО
-    if (currentLogState === lastLogState) return;
-
-    // Якщо дані змінилися:
-    // а) Запам'ятовуємо новий стан
-    lastLogState = currentLogState;
-
-    // б) Перемальовуємо HTML
     container.innerHTML = logs.map(l => `
         <div class="log-entry fade-in">
             <span class="log-time">[${l.time}]</span>
             <span class="log-text">${l.text}</span>
         </div>
-    `).reverse().join(''); 
-    // reverse() залишає нові повідомлення зверху.
+    `).reverse().join('');
 }
 
-// --- ДІЇ МАЙСТРА ---
-
+// --- ДІЇ GM ---
 async function transferGM(targetId) {
-    if (!confirm('Ви точно хочете передати права GM? Ви втратите контроль.')) return;
-
-    toggleLoader(true);
-    try {
-        const result = await apiCall('transfer_gm', {
-            roomCode: user.room,
-            userId: user.id,
-            targetId: targetId
-        });
-
-        if (result.status === 'success') {
-            alert('Корону передано!');
-            await refreshState(); 
-        } else {
-            showError(result.message || 'Помилка');
-        }
-    } finally {
-        toggleLoader(false);
-    }
+    if (!confirm('Передати корону?')) return;
+    await apiCall('transfer_gm', { roomCode: user.room, userId: user.id, targetId });
+    refreshState();
 }
 
 async function kickPlayer(targetId) {
-    if(!confirm(`Вигнати цього гравця?`)) return;
-    
-    await apiCall('kick_player', {
-        roomCode: user.room,
-        userId: user.id,
-        targetId: targetId
-    });
+    if(!confirm('Вигнати?')) return;
+    await apiCall('kick_player', { roomCode: user.room, userId: user.id, targetId });
     refreshState();
 }
 
 async function deleteRoom() {
-    const code = prompt("Для видалення введіть код кімнати:");
-    if(code !== user.room) return alert("Код невірний.");
-
-    toggleLoader(true);
+    const code = prompt("Введіть код кімнати для видалення:");
+    if(code !== user.room) return;
     await apiCall('delete_room', { roomCode: user.room, userId: user.id });
-    toggleLoader(false);
-    
     leaveRoom();
 }
 
 async function sendGmLog() {
     const input = document.getElementById('gmLogInput');
-    const text = input.value.trim();
+    const text = input ? input.value.trim() : '';
     if(!text) return;
-
-    await apiCall('add_log', {
-        roomCode: user.room,
-        userId: user.id,
-        text: text
-    });
-    input.value = ''; 
+    await apiCall('add_log', { roomCode: user.room, userId: user.id, text });
+    if(input) input.value = '';
     refreshState();
 }
 
-// --- ІНТЕРФЕЙС ТА УТИЛІТИ ---
-
+// --- УТИЛІТИ ---
 function saveUser(id, name) {
     user.id = id;
     user.name = name;
@@ -393,33 +330,17 @@ function saveUser(id, name) {
     localStorage.setItem('rpg_name', name);
 }
 
-function openMenuTab(tabName) {
-    document.getElementById('tab-rooms').classList.add('hidden');
-    document.getElementById('tab-profile').classList.add('hidden');
-    
-    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-
-    const buttons = document.querySelectorAll('.nav-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    
-    // buttons[0] = Profile, buttons[1] = Rooms
-    if(tabName === 'profile') buttons[0].classList.add('active');
-    if(tabName === 'rooms') buttons[1].classList.add('active');
+function toggleLoader(show) { 
+    const l = document.getElementById('loader');
+    if(l) l.classList.toggle('hidden', !show); 
 }
 
-function showDashboard() {
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('game-screen').classList.add('hidden');
-    
-    const menuScreen = document.getElementById('main-menu-screen');
-    menuScreen.classList.remove('hidden');
-    menuScreen.classList.add('fade-in');
-    
-    document.getElementById('dash-username').innerText = user.name;
-    document.getElementById('error-msg').innerText = '';
-
-    openMenuTab('profile');
+function showError(msg) { 
+    const err = document.getElementById('error-msg');
+    const authScreen = document.getElementById('auth-screen');
+    if(err && authScreen && !authScreen.classList.contains('hidden')) {
+        err.innerText = msg;
+    } else {
+        alert(msg);
+    }
 }
-
-function toggleLoader(show) { document.getElementById('loader').classList.toggle('hidden', !show); }
-function showError(msg) { document.getElementById('error-msg').innerText = msg; }
