@@ -6,6 +6,7 @@
     <title>RPG Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Fauna+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
@@ -39,7 +40,16 @@
                     <label>Повторіть пароль</label>
                     <input type="password" id="authPassConfirm" placeholder="••••••••">
                 </div>
+                <div class="input-group hidden" id="group-pass-confirm">
+                    <label>Повторіть пароль</label>
+                    <input type="password" id="authPassConfirm" placeholder="••••••••">
+                </div>
 
+                <div id="captcha-container" class="hidden" style="margin-bottom: 15px; display: flex; justify-content: center;">
+                    <div class="cf-turnstile" data-sitekey="ТУТ_ВАШ_SITE_KEY" data-theme="dark"></div>
+                </div>
+
+                <button id="submitAuthBtn" class="btn btn-primary" onclick="submitAuth()">Увійти</button>
                 <button id="submitAuthBtn" class="btn btn-primary" onclick="submitAuth()">Увійти</button>
             </div>
             
@@ -139,3 +149,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
