@@ -40,7 +40,7 @@ export default {
             if (!username || !password) throw new Error("Введіть логін і пароль");
             
             // --- ПЕРЕВІРКА КАПЧІ ---
-            const SECRET_KEY = '0x4AAAAAAAznk_XXXXXXXXXXXXX'; // ⚠️ ВСТАВ СЮДИ СВІЙ SECRET KEY
+            const SECRET_KEY = '0x4AAAAAACN2TjOv0E-RBE5oRE3h3aTw_ZE'; // ⚠️ ВСТАВ СЮДИ СВІЙ SECRET KEY
 
             const formData = new FormData();
             formData.append('secret', SECRET_KEY);
@@ -191,3 +191,4 @@ export default {
     }
   },
 };
+
